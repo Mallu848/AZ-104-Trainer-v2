@@ -877,6 +877,38 @@
       line-height: 1.7;
     }
 
+    .exp-option-card {
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+      padding: 10px 14px;
+      border-radius: var(--r);
+      margin-bottom: 7px;
+      border: 1px solid transparent;
+      font-size: 0.85rem;
+      line-height: 1.6;
+    }
+    .exp-option-correct {
+      background: var(--green-bg);
+      border-color: rgba(34,197,94,0.3);
+    }
+    .exp-option-wrong {
+      background: var(--red-bg);
+      border-color: rgba(239,68,68,0.18);
+    }
+    .exp-option-label {
+      font-family: var(--font-mono);
+      font-weight: 700;
+      font-size: 0.78rem;
+      min-width: 20px;
+      padding-top: 2px;
+      letter-spacing: 0.04em;
+    }
+    .exp-option-correct .exp-option-label { color: var(--green); }
+    .exp-option-wrong   .exp-option-label { color: var(--red); }
+    .exp-option-text { flex: 1; color: var(--txt2); }
+    .exp-option-correct .exp-option-text { color: var(--txt); }
+
     #explanation-panel .exp-tip {
       background: var(--bg3);
       border-left: 3px solid var(--acc);
@@ -1612,6 +1644,8 @@
           <option value="10" selected>10 questions (standard)</option>
           <option value="15">15 questions (deep dive)</option>
           <option value="20">20 questions (marathon)</option>
+          <option value="25">25 questions (extended)</option>
+          <option value="30">30 questions (full drill)</option>
         </select>
       </div>
 
@@ -1864,6 +1898,7 @@
           <option value="20">20 questions (~52 min)</option>
           <option value="30">30 questions (~78 min)</option>
           <option value="40" selected>40 questions (~104 min)</option>
+          <option value="50">50 questions (~130 min)</option>
         </select>
       </div>
       <button class="btn btn-primary w-full" id="start-sim-btn">▶ Begin Simulation</button>
@@ -2498,13 +2533,15 @@ async function fetchQuestions(topicList) {
    BATCHED FETCH — splits large topic lists to avoid Netlify 26s timeout
 ═══════════════════════════════════════════════════════════════ */
 async function fetchQuestionsInBatches(topics, progressCb) {
-  const BATCH_SIZE = 12;
+  const BATCH_SIZE = 4;
   const results = [];
   for (let i = 0; i < topics.length; i += BATCH_SIZE) {
     const batch = topics.slice(i, i + BATCH_SIZE);
     if (progressCb) progressCb(i, topics.length);
     const qs = await fetchQuestions(batch);
     results.push(...qs);
+    // Reset debounce between batches
+    session.lastApiCall = 0;
   }
   return results;
 }
@@ -2527,7 +2564,9 @@ async function startSession() {
   el('loading-sub').textContent = 'Generating ' + count + ' adaptive questions...';
 
   try {
-    const questions = await fetchQuestions(topics);
+    const questions = await fetchQuestionsInBatches(topics, (done, total) => {
+      el('loading-sub').textContent = 'Generating ' + count + ' questions... (' + Math.min(done + 4, total) + '/' + total + ')';
+    });
     session.questions = questions;
     session.idx       = 0;
     session.answers   = [];
@@ -2949,6 +2988,22 @@ function submitAnswer() {
   saveState();
 }
 
+function parseOptionExplanations(exp, count) {
+  const labels = ['A', 'B', 'C', 'D', 'E'].slice(0, count);
+  const result = [];
+  for (let i = 0; i < labels.length; i++) {
+    const cur  = labels[i];
+    const next = labels[i + 1];
+    const pat  = next
+      ? new RegExp(cur + '[):.\\s]+(.+?)(?=\\s*' + next + '[):.\\s])', 's')
+      : new RegExp(cur + '[):.\\s]+(.+)', 's');
+    const m = exp.match(pat);
+    if (!m) return null;
+    result.push(m[1].trim().replace(/\.$/, ''));
+  }
+  return result;
+}
+
 function showExplanation(q, isCorrect) {
   const panel = el('explanation-panel');
   panel.classList.add('show');
@@ -2957,7 +3012,35 @@ function showExplanation(q, isCorrect) {
   verdict.className = 'exp-verdict ' + (isCorrect ? 'correct' : 'incorrect');
   verdict.textContent = isCorrect ? '✓ Correct' : '✗ Incorrect';
 
-  el('exp-body').textContent = q.exp || 'No explanation provided.';
+  const expBody = el('exp-body');
+  const exp = q.exp || 'No explanation provided.';
+
+  if ((q.type === 'mc' || q.type === 'ms') && q.opts && q.opts.length) {
+    const correctSet = new Set(q.type === 'ms' ? (Array.isArray(q.ans) ? q.ans : [q.ans]) : [q.ans]);
+    const labels = ['A', 'B', 'C', 'D', 'E'];
+    const parsed = parseOptionExplanations(exp, q.opts.length);
+    if (parsed) {
+      expBody.innerHTML = '';
+      parsed.forEach((text, i) => {
+        const ok  = correctSet.has(i);
+        const div = document.createElement('div');
+        div.className = 'exp-option-card ' + (ok ? 'exp-option-correct' : 'exp-option-wrong');
+        const lbl = document.createElement('span');
+        lbl.className = 'exp-option-label';
+        lbl.textContent = labels[i];
+        const txt = document.createElement('span');
+        txt.className = 'exp-option-text';
+        txt.textContent = text;
+        div.appendChild(lbl);
+        div.appendChild(txt);
+        expBody.appendChild(div);
+      });
+    } else {
+      expBody.textContent = exp;
+    }
+  } else {
+    expBody.textContent = exp;
+  }
 
   const tipWrap = el('exp-tip-wrap');
   if (q.tip) {
