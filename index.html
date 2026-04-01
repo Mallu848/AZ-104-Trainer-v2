@@ -1,0 +1,3764 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta http-equiv="X-Content-Type-Options" content="nosniff" />
+  <title>AZ-104 Trainer — Microsoft Azure Administrator</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;600;700&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+  <style>
+    /* ═══════════════════════════════════════════════════════════════
+       DESIGN TOKENS
+    ═══════════════════════════════════════════════════════════════ */
+    :root {
+      /* Core palette */
+      --bg:        #07090f;
+      --bg1:       #0d1017;
+      --bg2:       #121620;
+      --bg3:       #1a2030;
+      --border:    #1e2840;
+      --border2:   #2a3655;
+
+      /* Accent */
+      --acc:       #2563eb;
+      --acc-h:     #3b7bfa;
+      --acc-d:     #1a4fcc;
+      --acc-glow:  rgba(37,99,235,0.18);
+
+      /* Text */
+      --txt:       #e2e8f0;
+      --txt2:      #94a3b8;
+      --txt3:      #64748b;
+      --txt-mono:  #a8c6fa;
+
+      /* Status */
+      --green:     #22c55e;
+      --green-d:   #16a34a;
+      --green-bg:  rgba(34,197,94,0.10);
+      --red:       #ef4444;
+      --red-d:     #dc2626;
+      --red-bg:    rgba(239,68,68,0.10);
+      --yellow:    #f59e0b;
+      --yellow-bg: rgba(245,158,11,0.10);
+      --cyan:      #06b6d4;
+      --cyan-bg:   rgba(6,182,212,0.10);
+      --purple:    #a855f7;
+      --purple-bg: rgba(168,85,247,0.10);
+
+      /* Domain badge colors */
+      --d-identity:   #818cf8;
+      --d-storage:    #34d399;
+      --d-compute:    #f97316;
+      --d-networking: #22d3ee;
+      --d-monitoring: #fb923c;
+
+      /* Typography */
+      --font-mono: 'JetBrains Mono', 'Courier New', monospace;
+      --font-sans: 'Inter', system-ui, sans-serif;
+
+      /* Spacing */
+      --r:  6px;
+      --r2: 10px;
+      --r3: 14px;
+
+      /* Shadows */
+      --shadow-sm:  0 1px 3px rgba(0,0,0,0.4);
+      --shadow-md:  0 4px 16px rgba(0,0,0,0.5);
+      --shadow-lg:  0 8px 32px rgba(0,0,0,0.6);
+      --shadow-acc: 0 0 20px rgba(37,99,235,0.3);
+
+      /* Transitions */
+      --t: 0.18s ease;
+      --t2: 0.28s ease;
+    }
+
+    /* ═══════════════════════════════════════════════════════════════
+       RESET + BASE
+    ═══════════════════════════════════════════════════════════════ */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      font-family: var(--font-sans);
+      background: var(--bg);
+      color: var(--txt);
+      min-height: 100vh;
+      line-height: 1.6;
+      -webkit-font-smoothing: antialiased;
+      overflow-x: hidden;
+    }
+
+    a { color: var(--acc); text-decoration: none; }
+    a:hover { color: var(--acc-h); }
+
+    button {
+      font-family: inherit;
+      cursor: pointer;
+      border: none;
+      outline: none;
+    }
+
+    input, select, textarea {
+      font-family: inherit;
+      outline: none;
+    }
+
+    ul, ol { list-style: none; }
+
+    /* ═══════════════════════════════════════════════════════════════
+       SCROLLBAR
+    ═══════════════════════════════════════════════════════════════ */
+    ::-webkit-scrollbar { width: 6px; height: 6px; }
+    ::-webkit-scrollbar-track { background: var(--bg1); }
+    ::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 3px; }
+    ::-webkit-scrollbar-thumb:hover { background: var(--acc); }
+
+    /* ═══════════════════════════════════════════════════════════════
+       HEADER + NAV
+    ═══════════════════════════════════════════════════════════════ */
+    #header {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      background: rgba(7,9,15,0.92);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--border);
+      padding: 0 24px;
+    }
+
+    .header-inner {
+      max-width: 1200px;
+      margin: 0 auto;
+      display: flex;
+      align-items: center;
+      gap: 24px;
+      height: 56px;
+    }
+
+    .logo {
+      font-family: var(--font-mono);
+      font-size: 0.95rem;
+      font-weight: 700;
+      color: var(--acc-h);
+      letter-spacing: 0.03em;
+      white-space: nowrap;
+      flex-shrink: 0;
+    }
+
+    .logo span { color: var(--txt3); font-weight: 400; }
+
+    #main-nav {
+      display: flex;
+      gap: 2px;
+      flex: 1;
+      overflow-x: auto;
+      scrollbar-width: none;
+    }
+
+    #main-nav::-webkit-scrollbar { display: none; }
+
+    .nav-btn {
+      font-family: var(--font-mono);
+      font-size: 0.7rem;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--txt3);
+      background: transparent;
+      border: 1px solid transparent;
+      border-radius: var(--r);
+      padding: 6px 12px;
+      transition: color var(--t), border-color var(--t), background var(--t);
+      white-space: nowrap;
+    }
+
+    .nav-btn:hover {
+      color: var(--txt);
+      background: var(--bg2);
+      border-color: var(--border);
+    }
+
+    .nav-btn.active {
+      color: var(--acc-h);
+      background: var(--acc-glow);
+      border-color: var(--acc);
+    }
+
+    .header-right {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      flex-shrink: 0;
+    }
+
+    /* Streak counter */
+    #streak-display {
+      font-family: var(--font-mono);
+      font-size: 0.78rem;
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      color: var(--yellow);
+      background: var(--yellow-bg);
+      border: 1px solid rgba(245,158,11,0.25);
+      border-radius: var(--r2);
+      padding: 4px 10px;
+    }
+
+    #streak-display .streak-icon { font-size: 0.9rem; }
+    #streak-display .streak-count { font-weight: 700; }
+    #streak-display .streak-label { color: var(--txt3); font-size: 0.65rem; }
+
+    /* Keyboard shortcut hint */
+    #shortcut-hint-btn {
+      font-family: var(--font-mono);
+      font-size: 0.65rem;
+      color: var(--txt3);
+      background: var(--bg2);
+      border: 1px solid var(--border);
+      border-radius: var(--r);
+      padding: 4px 8px;
+      transition: color var(--t), border-color var(--t);
+    }
+
+    #shortcut-hint-btn:hover { color: var(--txt); border-color: var(--border2); }
+
+    /* ═══════════════════════════════════════════════════════════════
+       MAIN LAYOUT
+    ═══════════════════════════════════════════════════════════════ */
+    #app {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 28px 24px 64px;
+    }
+
+    /* Section visibility */
+    .section { display: none; }
+    .section.active { display: block; }
+
+    /* ═══════════════════════════════════════════════════════════════
+       CARDS + PANELS
+    ═══════════════════════════════════════════════════════════════ */
+    .card {
+      background: var(--bg1);
+      border: 1px solid var(--border);
+      border-radius: var(--r3);
+      padding: 24px;
+    }
+
+    .card-sm {
+      background: var(--bg1);
+      border: 1px solid var(--border);
+      border-radius: var(--r2);
+      padding: 16px;
+    }
+
+    .panel {
+      background: var(--bg2);
+      border: 1px solid var(--border);
+      border-radius: var(--r2);
+      padding: 16px 20px;
+    }
+
+    /* ═══════════════════════════════════════════════════════════════
+       TYPOGRAPHY UTILITIES
+    ═══════════════════════════════════════════════════════════════ */
+    .mono { font-family: var(--font-mono); }
+    .txt2 { color: var(--txt2); }
+    .txt3 { color: var(--txt3); }
+    .small { font-size: 0.8rem; }
+    .xsmall { font-size: 0.7rem; }
+
+    .section-title {
+      font-family: var(--font-mono);
+      font-size: 0.72rem;
+      font-weight: 600;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--txt3);
+      margin-bottom: 16px;
+    }
+
+    .section-title::before {
+      content: '// ';
+      color: var(--acc);
+    }
+
+    /* ═══════════════════════════════════════════════════════════════
+       BUTTONS
+    ═══════════════════════════════════════════════════════════════ */
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      font-family: var(--font-mono);
+      font-size: 0.78rem;
+      font-weight: 600;
+      letter-spacing: 0.05em;
+      padding: 9px 18px;
+      border-radius: var(--r2);
+      border: 1px solid transparent;
+      transition: all var(--t);
+      cursor: pointer;
+      white-space: nowrap;
+    }
+
+    .btn-primary {
+      background: var(--acc);
+      color: #fff;
+      border-color: var(--acc);
+    }
+
+    .btn-primary:hover:not(:disabled) {
+      background: var(--acc-h);
+      border-color: var(--acc-h);
+      box-shadow: var(--shadow-acc);
+      transform: translateY(-1px);
+    }
+
+    .btn-primary:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+
+    .btn-ghost {
+      background: transparent;
+      color: var(--txt2);
+      border-color: var(--border2);
+    }
+
+    .btn-ghost:hover:not(:disabled) {
+      color: var(--txt);
+      border-color: var(--acc);
+      background: var(--acc-glow);
+    }
+
+    .btn-ghost:disabled { opacity: 0.4; cursor: not-allowed; }
+
+    .btn-danger {
+      background: transparent;
+      color: var(--red);
+      border-color: rgba(239,68,68,0.3);
+    }
+
+    .btn-danger:hover:not(:disabled) {
+      background: var(--red-bg);
+      border-color: var(--red);
+    }
+
+    .btn-success {
+      background: var(--green-bg);
+      color: var(--green);
+      border-color: rgba(34,197,94,0.3);
+    }
+
+    .btn-success:hover:not(:disabled) {
+      background: rgba(34,197,94,0.18);
+      border-color: var(--green);
+    }
+
+    .btn-sm {
+      font-size: 0.68rem;
+      padding: 5px 11px;
+    }
+
+    .btn-icon {
+      padding: 7px;
+      border-radius: var(--r);
+      font-size: 0.9rem;
+    }
+
+    /* ═══════════════════════════════════════════════════════════════
+       BADGES
+    ═══════════════════════════════════════════════════════════════ */
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      font-family: var(--font-mono);
+      font-size: 0.62rem;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      padding: 2px 7px;
+      border-radius: 4px;
+      text-transform: uppercase;
+    }
+
+    .badge-identity   { background: rgba(129,140,248,0.15); color: var(--d-identity);   border: 1px solid rgba(129,140,248,0.25); }
+    .badge-storage    { background: rgba(52,211,153,0.12);  color: var(--d-storage);    border: 1px solid rgba(52,211,153,0.22);  }
+    .badge-compute    { background: rgba(249,115,22,0.12);  color: var(--d-compute);    border: 1px solid rgba(249,115,22,0.22);  }
+    .badge-networking { background: rgba(34,211,238,0.10);  color: var(--d-networking); border: 1px solid rgba(34,211,238,0.20);  }
+    .badge-monitoring { background: rgba(251,146,60,0.12);  color: var(--d-monitoring); border: 1px solid rgba(251,146,60,0.22);  }
+
+    .badge-weak  { background: var(--red-bg);    color: var(--red);    border: 1px solid rgba(239,68,68,0.3); }
+    .badge-ok    { background: var(--green-bg);  color: var(--green);  border: 1px solid rgba(34,197,94,0.3); }
+    .badge-warn  { background: var(--yellow-bg); color: var(--yellow); border: 1px solid rgba(245,158,11,0.3); }
+    .badge-mc    { background: var(--cyan-bg);   color: var(--cyan);   border: 1px solid rgba(6,182,212,0.3); }
+    .badge-yn    { background: var(--green-bg);  color: var(--green);  border: 1px solid rgba(34,197,94,0.3); }
+    .badge-ms    { background: var(--purple-bg); color: var(--purple); border: 1px solid rgba(168,85,247,0.3); }
+    .badge-dnd   { background: var(--yellow-bg); color: var(--yellow); border: 1px solid rgba(245,158,11,0.3); }
+
+    /* ═══════════════════════════════════════════════════════════════
+       HOME SECTION
+    ═══════════════════════════════════════════════════════════════ */
+    #home .hero {
+      text-align: center;
+      padding: 48px 0 36px;
+    }
+
+    #home .hero-badge {
+      font-family: var(--font-mono);
+      font-size: 0.68rem;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--acc);
+      background: var(--acc-glow);
+      border: 1px solid rgba(37,99,235,0.3);
+      border-radius: 20px;
+      padding: 4px 14px;
+      display: inline-block;
+      margin-bottom: 20px;
+    }
+
+    #home .hero h1 {
+      font-family: var(--font-mono);
+      font-size: clamp(1.6rem, 4vw, 2.4rem);
+      font-weight: 700;
+      color: var(--txt);
+      letter-spacing: -0.02em;
+      line-height: 1.2;
+      margin-bottom: 12px;
+    }
+
+    #home .hero h1 em {
+      color: var(--acc-h);
+      font-style: normal;
+    }
+
+    #home .hero p {
+      color: var(--txt2);
+      font-size: 1rem;
+      max-width: 520px;
+      margin: 0 auto 28px;
+    }
+
+    #home .hero-actions {
+      display: flex;
+      gap: 12px;
+      justify-content: center;
+      flex-wrap: wrap;
+    }
+
+    /* Stats row */
+    #home .stats-row {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+      gap: 12px;
+      margin: 32px 0;
+    }
+
+    .stat-card {
+      background: var(--bg1);
+      border: 1px solid var(--border);
+      border-radius: var(--r2);
+      padding: 16px;
+      text-align: center;
+      transition: border-color var(--t);
+    }
+
+    .stat-card:hover { border-color: var(--border2); }
+
+    .stat-card .stat-val {
+      font-family: var(--font-mono);
+      font-size: 1.8rem;
+      font-weight: 700;
+      color: var(--acc-h);
+      line-height: 1;
+      margin-bottom: 4px;
+    }
+
+    .stat-card .stat-lbl {
+      font-size: 0.72rem;
+      color: var(--txt3);
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+    }
+
+    /* Domain summary on home */
+    #home .domain-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 12px;
+      margin-top: 24px;
+    }
+
+    .domain-tile {
+      background: var(--bg1);
+      border: 1px solid var(--border);
+      border-radius: var(--r2);
+      padding: 14px 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      transition: border-color var(--t), box-shadow var(--t);
+      cursor: pointer;
+    }
+
+    .domain-tile:hover {
+      border-color: var(--border2);
+      box-shadow: var(--shadow-sm);
+    }
+
+    .domain-tile .tile-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .domain-tile .tile-name {
+      font-size: 0.82rem;
+      font-weight: 600;
+      color: var(--txt);
+    }
+
+    .domain-tile .tile-pct {
+      font-family: var(--font-mono);
+      font-size: 0.8rem;
+      font-weight: 700;
+    }
+
+    .domain-tile .tile-bar {
+      height: 4px;
+      background: var(--border);
+      border-radius: 2px;
+      overflow: hidden;
+    }
+
+    .domain-tile .tile-bar-fill {
+      height: 100%;
+      border-radius: 2px;
+      transition: width 0.6s ease;
+    }
+
+    /* ═══════════════════════════════════════════════════════════════
+       PRACTICE SECTION
+    ═══════════════════════════════════════════════════════════════ */
+    #practice .practice-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 20px;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+
+    /* Progress bar */
+    #q-progress-wrap {
+      background: var(--bg1);
+      border: 1px solid var(--border);
+      border-radius: var(--r3);
+      padding: 16px 20px;
+      margin-bottom: 20px;
+    }
+
+    .progress-meta {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 8px;
+      font-size: 0.75rem;
+      color: var(--txt3);
+      font-family: var(--font-mono);
+    }
+
+    .progress-meta .q-counter { color: var(--txt2); font-weight: 600; }
+    .progress-meta .q-score   { color: var(--green); }
+
+    .progress-bar {
+      height: 6px;
+      background: var(--bg3);
+      border-radius: 3px;
+      overflow: hidden;
+      position: relative;
+    }
+
+    .progress-bar-fill {
+      height: 100%;
+      background: linear-gradient(90deg, var(--acc), var(--acc-h));
+      border-radius: 3px;
+      transition: width 0.4s ease;
+    }
+
+    /* Question card */
+    #q-card {
+      background: var(--bg1);
+      border: 1px solid var(--border);
+      border-radius: var(--r3);
+      padding: 28px;
+      margin-bottom: 20px;
+      transition: border-color var(--t);
+    }
+
+    #q-card.correct-glow  { border-color: var(--green); box-shadow: 0 0 20px rgba(34,197,94,0.12); }
+    #q-card.incorrect-glow { border-color: var(--red);  box-shadow: 0 0 20px rgba(239,68,68,0.10); }
+
+    #q-card .q-meta {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 18px;
+      flex-wrap: wrap;
+    }
+
+    #q-card .q-num {
+      font-family: var(--font-mono);
+      font-size: 0.68rem;
+      color: var(--txt3);
+    }
+
+    #q-card .q-text {
+      font-size: 1rem;
+      line-height: 1.7;
+      color: var(--txt);
+      margin-bottom: 22px;
+    }
+
+    /* MC Options */
+    .mc-options { display: flex; flex-direction: column; gap: 10px; }
+
+    .mc-option {
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+      background: var(--bg2);
+      border: 1px solid var(--border);
+      border-radius: var(--r2);
+      padding: 12px 14px;
+      cursor: pointer;
+      transition: all var(--t);
+      text-align: left;
+    }
+
+    .mc-option:hover:not(.locked) {
+      border-color: var(--acc);
+      background: var(--acc-glow);
+    }
+
+    .mc-option.selected {
+      border-color: var(--acc);
+      background: var(--acc-glow);
+    }
+
+    .mc-option.correct {
+      border-color: var(--green);
+      background: var(--green-bg);
+    }
+
+    .mc-option.incorrect {
+      border-color: var(--red);
+      background: var(--red-bg);
+    }
+
+    .mc-option.locked { cursor: default; }
+
+    .mc-option .opt-key {
+      font-family: var(--font-mono);
+      font-size: 0.7rem;
+      font-weight: 700;
+      color: var(--txt3);
+      background: var(--bg3);
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      width: 22px;
+      height: 22px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      margin-top: 1px;
+      transition: background var(--t), color var(--t), border-color var(--t);
+    }
+
+    .mc-option.selected .opt-key,
+    .mc-option:hover:not(.locked) .opt-key { background: var(--acc); color: #fff; border-color: var(--acc); }
+    .mc-option.correct  .opt-key { background: var(--green); color: #fff; border-color: var(--green); }
+    .mc-option.incorrect .opt-key { background: var(--red); color: #fff; border-color: var(--red); }
+
+    .mc-option .opt-text {
+      font-size: 0.9rem;
+      color: var(--txt);
+      line-height: 1.5;
+    }
+
+    /* YN Options */
+    .yn-options { display: flex; gap: 12px; }
+
+    .yn-btn {
+      flex: 1;
+      padding: 16px;
+      font-family: var(--font-mono);
+      font-size: 1rem;
+      font-weight: 700;
+      border: 2px solid var(--border);
+      border-radius: var(--r2);
+      background: var(--bg2);
+      color: var(--txt2);
+      cursor: pointer;
+      transition: all var(--t);
+    }
+
+    .yn-btn:hover:not(.locked) { border-color: var(--acc); color: var(--acc); background: var(--acc-glow); }
+    .yn-btn.selected           { border-color: var(--acc); color: var(--acc); background: var(--acc-glow); }
+    .yn-btn.correct            { border-color: var(--green); color: var(--green); background: var(--green-bg); }
+    .yn-btn.incorrect          { border-color: var(--red); color: var(--red); background: var(--red-bg); }
+    .yn-btn.locked             { cursor: default; }
+
+    /* MS Options */
+    .ms-options { display: flex; flex-direction: column; gap: 10px; }
+    .ms-hint { font-size: 0.76rem; color: var(--txt3); font-family: var(--font-mono); margin-bottom: 10px; }
+
+    .ms-option {
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+      background: var(--bg2);
+      border: 1px solid var(--border);
+      border-radius: var(--r2);
+      padding: 12px 14px;
+      cursor: pointer;
+      transition: all var(--t);
+    }
+
+    .ms-option:hover:not(.locked) { border-color: var(--purple); background: var(--purple-bg); }
+    .ms-option.selected           { border-color: var(--purple); background: var(--purple-bg); }
+    .ms-option.correct            { border-color: var(--green);  background: var(--green-bg); }
+    .ms-option.incorrect          { border-color: var(--red);    background: var(--red-bg); }
+    .ms-option.locked             { cursor: default; }
+
+    .ms-option .ms-check {
+      width: 18px;
+      height: 18px;
+      border: 2px solid var(--border2);
+      border-radius: 4px;
+      flex-shrink: 0;
+      margin-top: 2px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.65rem;
+      transition: all var(--t);
+    }
+
+    .ms-option.selected .ms-check  { background: var(--purple); border-color: var(--purple); color: #fff; }
+    .ms-option.correct  .ms-check  { background: var(--green);  border-color: var(--green);  color: #fff; }
+    .ms-option.incorrect .ms-check { background: var(--red);    border-color: var(--red);    color: #fff; }
+
+    /* DnD */
+    .dnd-container { display: flex; flex-direction: column; gap: 8px; }
+    .dnd-hint { font-size: 0.76rem; color: var(--txt3); font-family: var(--font-mono); margin-bottom: 10px; }
+
+    .dnd-item {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      background: var(--bg2);
+      border: 1px solid var(--border);
+      border-radius: var(--r2);
+      padding: 10px 14px;
+      cursor: grab;
+      user-select: none;
+      transition: all var(--t);
+    }
+
+    .dnd-item:active { cursor: grabbing; }
+
+    .dnd-item.dragging {
+      opacity: 0.5;
+      border-style: dashed;
+      border-color: var(--acc);
+    }
+
+    .dnd-item.drag-over {
+      border-color: var(--acc-h);
+      background: var(--acc-glow);
+      transform: translateY(-2px);
+    }
+
+    .dnd-item.correct  { border-color: var(--green); background: var(--green-bg); cursor: default; }
+    .dnd-item.incorrect { border-color: var(--red);  background: var(--red-bg);  cursor: default; }
+
+    .dnd-item .dnd-handle {
+      color: var(--txt3);
+      font-size: 0.9rem;
+      flex-shrink: 0;
+    }
+
+    .dnd-item .dnd-pos {
+      font-family: var(--font-mono);
+      font-size: 0.68rem;
+      color: var(--txt3);
+      width: 18px;
+      text-align: center;
+      flex-shrink: 0;
+    }
+
+    .dnd-item .dnd-text {
+      font-size: 0.88rem;
+      color: var(--txt);
+      flex: 1;
+    }
+
+    /* Question action bar */
+    #q-actions {
+      display: flex;
+      gap: 10px;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+
+    #q-actions .spacer { flex: 1; }
+
+    #bookmark-btn {
+      font-size: 1rem;
+      padding: 7px 10px;
+      border-radius: var(--r);
+      background: transparent;
+      border: 1px solid var(--border);
+      color: var(--txt3);
+      transition: all var(--t);
+    }
+
+    #bookmark-btn:hover        { border-color: var(--yellow); color: var(--yellow); background: var(--yellow-bg); }
+    #bookmark-btn.bookmarked   { border-color: var(--yellow); color: var(--yellow); background: var(--yellow-bg); }
+
+    /* Explanation panel */
+    #explanation-panel {
+      display: none;
+      background: var(--bg1);
+      border: 1px solid var(--border);
+      border-radius: var(--r3);
+      padding: 22px;
+      margin-top: 20px;
+    }
+
+    #explanation-panel.show { display: block; }
+
+    #explanation-panel .exp-verdict {
+      font-family: var(--font-mono);
+      font-size: 0.8rem;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      padding: 6px 14px;
+      border-radius: var(--r);
+      display: inline-block;
+      margin-bottom: 14px;
+    }
+
+    #explanation-panel .exp-verdict.correct   { background: var(--green-bg); color: var(--green); border: 1px solid rgba(34,197,94,0.3); }
+    #explanation-panel .exp-verdict.incorrect { background: var(--red-bg);   color: var(--red);   border: 1px solid rgba(239,68,68,0.3); }
+
+    #explanation-panel .exp-title {
+      font-family: var(--font-mono);
+      font-size: 0.7rem;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--txt3);
+      margin-bottom: 8px;
+      margin-top: 14px;
+    }
+
+    #explanation-panel .exp-body {
+      font-size: 0.88rem;
+      color: var(--txt2);
+      line-height: 1.7;
+    }
+
+    #explanation-panel .exp-tip {
+      background: var(--bg3);
+      border-left: 3px solid var(--acc);
+      border-radius: 0 var(--r) var(--r) 0;
+      padding: 10px 14px;
+      font-size: 0.85rem;
+      color: var(--txt-mono);
+      font-family: var(--font-mono);
+      margin-top: 12px;
+      line-height: 1.6;
+    }
+
+    /* Loading state */
+    #loading-overlay {
+      display: none;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 16px;
+      padding: 60px 20px;
+      text-align: center;
+    }
+
+    #loading-overlay.show { display: flex; }
+
+    .loader {
+      width: 40px;
+      height: 40px;
+      border: 3px solid var(--border);
+      border-top-color: var(--acc);
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+    }
+
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    .loader-text {
+      font-family: var(--font-mono);
+      font-size: 0.8rem;
+      color: var(--txt3);
+    }
+
+    .loader-dots::after {
+      content: '';
+      animation: dots 1.4s infinite;
+    }
+
+    @keyframes dots {
+      0%   { content: ''; }
+      33%  { content: '.'; }
+      66%  { content: '..'; }
+      100% { content: '...'; }
+    }
+
+    /* ═══════════════════════════════════════════════════════════════
+       WRONG ANSWERS SECTION
+    ═══════════════════════════════════════════════════════════════ */
+    #review .review-toolbar {
+      display: flex;
+      gap: 10px;
+      align-items: center;
+      flex-wrap: wrap;
+      margin-bottom: 20px;
+    }
+
+    #review .filter-select {
+      font-family: var(--font-mono);
+      font-size: 0.75rem;
+      background: var(--bg2);
+      border: 1px solid var(--border);
+      color: var(--txt2);
+      border-radius: var(--r);
+      padding: 7px 10px;
+      min-width: 140px;
+    }
+
+    #review .filter-select:focus { border-color: var(--acc); }
+
+    .wrong-item {
+      background: var(--bg1);
+      border: 1px solid var(--border);
+      border-left: 3px solid var(--red);
+      border-radius: 0 var(--r2) var(--r2) 0;
+      padding: 16px 20px;
+      margin-bottom: 10px;
+      transition: border-color var(--t);
+    }
+
+    .wrong-item.mastered {
+      border-left-color: var(--green);
+      opacity: 0.6;
+    }
+
+    .wrong-item .wi-q {
+      font-size: 0.9rem;
+      color: var(--txt);
+      margin-bottom: 10px;
+      line-height: 1.5;
+    }
+
+    .wrong-item .wi-answers {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+      margin-bottom: 10px;
+    }
+
+    .wrong-item .wi-ans {
+      font-family: var(--font-mono);
+      font-size: 0.73rem;
+      padding: 6px 10px;
+      border-radius: var(--r);
+    }
+
+    .wi-yours   { background: var(--red-bg);   color: var(--red);   border: 1px solid rgba(239,68,68,0.25); }
+    .wi-correct { background: var(--green-bg); color: var(--green); border: 1px solid rgba(34,197,94,0.25); }
+
+    .wrong-item .wi-footer {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    /* ═══════════════════════════════════════════════════════════════
+       SKILLS MAP SECTION
+    ═══════════════════════════════════════════════════════════════ */
+    #skillsmap .domain-block {
+      margin-bottom: 28px;
+    }
+
+    #skillsmap .domain-header {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 12px;
+      padding-bottom: 10px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    #skillsmap .domain-name {
+      font-weight: 700;
+      font-size: 0.95rem;
+      color: var(--txt);
+    }
+
+    #skillsmap .domain-weight {
+      font-family: var(--font-mono);
+      font-size: 0.7rem;
+      color: var(--txt3);
+      margin-left: auto;
+    }
+
+    #skillsmap .domain-pct {
+      font-family: var(--font-mono);
+      font-size: 0.8rem;
+      font-weight: 700;
+    }
+
+    #skillsmap .skill-list {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+      gap: 8px;
+    }
+
+    .skill-chip {
+      font-size: 0.78rem;
+      color: var(--txt2);
+      background: var(--bg2);
+      border: 1px solid var(--border);
+      border-radius: var(--r);
+      padding: 7px 12px;
+      line-height: 1.3;
+      transition: border-color var(--t);
+    }
+
+    .skill-chip:hover { border-color: var(--border2); }
+
+    #skillsmap .big-bar {
+      height: 8px;
+      background: var(--bg3);
+      border-radius: 4px;
+      margin-bottom: 14px;
+      overflow: hidden;
+    }
+
+    #skillsmap .big-bar-fill {
+      height: 100%;
+      border-radius: 4px;
+      transition: width 0.7s ease;
+    }
+
+    /* ═══════════════════════════════════════════════════════════════
+       EXAM TIPS SECTION
+    ═══════════════════════════════════════════════════════════════ */
+    #tips .tips-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 16px;
+    }
+
+    .tip-card {
+      background: var(--bg1);
+      border: 1px solid var(--border);
+      border-radius: var(--r2);
+      padding: 20px;
+    }
+
+    .tip-card .tip-icon {
+      font-size: 1.4rem;
+      margin-bottom: 10px;
+    }
+
+    .tip-card .tip-title {
+      font-family: var(--font-mono);
+      font-size: 0.78rem;
+      font-weight: 700;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      color: var(--acc-h);
+      margin-bottom: 8px;
+    }
+
+    .tip-card .tip-body {
+      font-size: 0.84rem;
+      color: var(--txt2);
+      line-height: 1.7;
+    }
+
+    .tip-card .tip-body li {
+      padding: 2px 0 2px 12px;
+      position: relative;
+    }
+
+    .tip-card .tip-body li::before {
+      content: '›';
+      position: absolute;
+      left: 0;
+      color: var(--acc);
+    }
+
+    /* ═══════════════════════════════════════════════════════════════
+       PROGRESS SECTION
+    ═══════════════════════════════════════════════════════════════ */
+    #progress .progress-layout {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 20px;
+    }
+
+    @media (max-width: 700px) {
+      #progress .progress-layout { grid-template-columns: 1fr; }
+    }
+
+    .domain-acc-row {
+      margin-bottom: 14px;
+    }
+
+    .domain-acc-row .dr-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 5px;
+    }
+
+    .domain-acc-row .dr-name {
+      font-size: 0.82rem;
+      font-weight: 600;
+      color: var(--txt);
+    }
+
+    .domain-acc-row .dr-pct {
+      font-family: var(--font-mono);
+      font-size: 0.8rem;
+      font-weight: 700;
+    }
+
+    .domain-acc-row .dr-bar {
+      height: 6px;
+      background: var(--bg3);
+      border-radius: 3px;
+      overflow: hidden;
+    }
+
+    .domain-acc-row .dr-fill {
+      height: 100%;
+      border-radius: 3px;
+      transition: width 0.6s ease;
+    }
+
+    .session-hist-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 8px 12px;
+      background: var(--bg2);
+      border: 1px solid var(--border);
+      border-radius: var(--r);
+      margin-bottom: 6px;
+      font-size: 0.78rem;
+    }
+
+    .session-hist-item .sh-date {
+      color: var(--txt3);
+      font-family: var(--font-mono);
+      font-size: 0.68rem;
+      min-width: 80px;
+    }
+
+    .session-hist-item .sh-score {
+      font-family: var(--font-mono);
+      font-weight: 700;
+    }
+
+    .session-hist-item .sh-detail { color: var(--txt3); font-size: 0.72rem; flex: 1; }
+
+    /* ═══════════════════════════════════════════════════════════════
+       EXAM SIM SECTION
+    ═══════════════════════════════════════════════════════════════ */
+    #examsim .sim-controls {
+      display: flex;
+      gap: 12px;
+      align-items: center;
+      flex-wrap: wrap;
+      margin-bottom: 24px;
+    }
+
+    #sim-timer {
+      font-family: var(--font-mono);
+      font-size: 1.2rem;
+      font-weight: 700;
+      color: var(--yellow);
+      background: var(--yellow-bg);
+      border: 1px solid rgba(245,158,11,0.25);
+      border-radius: var(--r2);
+      padding: 8px 16px;
+    }
+
+    #sim-timer.urgent { color: var(--red); background: var(--red-bg); border-color: rgba(239,68,68,0.3); }
+
+    /* ═══════════════════════════════════════════════════════════════
+       SHORTCUTS OVERLAY (modal)
+    ═══════════════════════════════════════════════════════════════ */
+    .modal-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.7);
+      backdrop-filter: blur(4px);
+      z-index: 200;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+
+    .modal-overlay.open { display: flex; }
+
+    .modal-box {
+      background: var(--bg1);
+      border: 1px solid var(--border2);
+      border-radius: var(--r3);
+      width: 100%;
+      max-width: 560px;
+      max-height: 90vh;
+      overflow-y: auto;
+      box-shadow: var(--shadow-lg);
+    }
+
+    .modal-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 18px 22px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .modal-title {
+      font-family: var(--font-mono);
+      font-size: 0.82rem;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--txt);
+    }
+
+    .modal-close {
+      font-size: 1.1rem;
+      color: var(--txt3);
+      background: transparent;
+      border: none;
+      transition: color var(--t);
+      line-height: 1;
+      padding: 4px;
+    }
+
+    .modal-close:hover { color: var(--txt); }
+
+    .modal-body { padding: 20px 22px; }
+
+    /* Shortcut table */
+    .shortcut-group { margin-bottom: 18px; }
+    .shortcut-group-title {
+      font-family: var(--font-mono);
+      font-size: 0.68rem;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--acc);
+      margin-bottom: 10px;
+    }
+
+    .shortcut-row {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 5px 0;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .shortcut-row:last-child { border-bottom: none; }
+
+    .kbd {
+      font-family: var(--font-mono);
+      font-size: 0.68rem;
+      background: var(--bg3);
+      border: 1px solid var(--border2);
+      border-radius: 4px;
+      padding: 2px 7px;
+      color: var(--txt-mono);
+      white-space: nowrap;
+      flex-shrink: 0;
+      min-width: 28px;
+      text-align: center;
+    }
+
+    .shortcut-desc {
+      font-size: 0.8rem;
+      color: var(--txt2);
+    }
+
+    /* ═══════════════════════════════════════════════════════════════
+       SESSION SUMMARY MODAL
+    ═══════════════════════════════════════════════════════════════ */
+    #session-modal .modal-box { max-width: 520px; }
+
+    .session-summary-score {
+      text-align: center;
+      padding: 20px 0;
+    }
+
+    .session-summary-score .score-circle {
+      width: 100px;
+      height: 100px;
+      border-radius: 50%;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto 14px;
+      border: 3px solid var(--acc);
+      box-shadow: var(--shadow-acc);
+    }
+
+    .session-summary-score .score-num {
+      font-family: var(--font-mono);
+      font-size: 1.6rem;
+      font-weight: 700;
+      color: var(--acc-h);
+      line-height: 1;
+    }
+
+    .session-summary-score .score-den {
+      font-family: var(--font-mono);
+      font-size: 0.72rem;
+      color: var(--txt3);
+    }
+
+    .session-summary-score .score-msg {
+      font-size: 0.88rem;
+      color: var(--txt2);
+    }
+
+    .session-domain-breakdown { margin-top: 16px; }
+
+    /* ═══════════════════════════════════════════════════════════════
+       TOAST
+    ═══════════════════════════════════════════════════════════════ */
+    #toast-container {
+      position: fixed;
+      bottom: 24px;
+      right: 24px;
+      z-index: 300;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      pointer-events: none;
+    }
+
+    .toast {
+      font-family: var(--font-mono);
+      font-size: 0.78rem;
+      padding: 10px 16px;
+      background: var(--bg2);
+      border: 1px solid var(--border2);
+      border-radius: var(--r2);
+      color: var(--txt);
+      box-shadow: var(--shadow-md);
+      animation: toast-in 0.22s ease, toast-out 0.22s ease 2.5s forwards;
+      pointer-events: auto;
+    }
+
+    .toast.success { border-color: rgba(34,197,94,0.4); color: var(--green); }
+    .toast.error   { border-color: rgba(239,68,68,0.4); color: var(--red); }
+    .toast.info    { border-color: rgba(37,99,235,0.4); color: var(--acc-h); }
+
+    @keyframes toast-in {
+      from { opacity: 0; transform: translateY(10px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    @keyframes toast-out {
+      from { opacity: 1; transform: translateY(0); }
+      to   { opacity: 0; transform: translateY(6px); }
+    }
+
+    /* ═══════════════════════════════════════════════════════════════
+       UTILITY
+    ═══════════════════════════════════════════════════════════════ */
+    .hidden  { display: none !important; }
+    .flex    { display: flex; }
+    .flex-col { display: flex; flex-direction: column; }
+    .items-center { align-items: center; }
+    .justify-between { justify-content: space-between; }
+    .gap-8  { gap: 8px; }
+    .gap-12 { gap: 12px; }
+    .gap-16 { gap: 16px; }
+    .mb-8   { margin-bottom: 8px; }
+    .mb-12  { margin-bottom: 12px; }
+    .mb-16  { margin-bottom: 16px; }
+    .mb-20  { margin-bottom: 20px; }
+    .mb-24  { margin-bottom: 24px; }
+    .mt-8   { margin-top: 8px; }
+    .mt-12  { margin-top: 12px; }
+    .mt-16  { margin-top: 16px; }
+    .w-full { width: 100%; }
+    .text-center { text-align: center; }
+
+    /* Empty state */
+    .empty-state {
+      text-align: center;
+      padding: 48px 24px;
+      color: var(--txt3);
+    }
+
+    .empty-state .es-icon { font-size: 2.4rem; margin-bottom: 12px; }
+    .empty-state .es-msg  { font-size: 0.88rem; color: var(--txt3); }
+
+    /* ═══════════════════════════════════════════════════════════════
+       RESPONSIVE
+    ═══════════════════════════════════════════════════════════════ */
+    @media (max-width: 640px) {
+      #app { padding: 16px 14px 48px; }
+      .header-inner { gap: 12px; }
+      .logo { font-size: 0.82rem; }
+      #q-card { padding: 18px 16px; }
+      .yn-options { flex-direction: column; }
+      .wrong-item .wi-answers { grid-template-columns: 1fr; }
+      #toast-container { bottom: 16px; right: 16px; left: 16px; }
+    }
+
+    @media (max-width: 480px) {
+      .stats-row { grid-template-columns: repeat(2, 1fr); }
+      .domain-grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- ══════════════════════════════════════════════════════════════
+     HEADER
+══════════════════════════════════════════════════════════════ -->
+<header id="header">
+  <div class="header-inner">
+    <div class="logo">AZ<span>-</span>104<span> ›</span> Trainer</div>
+
+    <nav id="main-nav" role="navigation" aria-label="Main navigation">
+      <button class="nav-btn active" data-section="home">Home</button>
+      <button class="nav-btn" data-section="practice">Practice</button>
+      <button class="nav-btn" data-section="review">Wrong Answers</button>
+      <button class="nav-btn" data-section="skillsmap">Skills Map</button>
+      <button class="nav-btn" data-section="tips">Exam Tips</button>
+      <button class="nav-btn" data-section="progress">Progress</button>
+      <button class="nav-btn" data-section="examsim">Exam Sim</button>
+    </nav>
+
+    <div class="header-right">
+      <div id="streak-display" aria-label="Current study streak">
+        <span class="streak-icon">🔥</span>
+        <span class="streak-count" id="streak-val">0</span>
+        <span class="streak-label">day streak</span>
+      </div>
+      <button id="shortcut-hint-btn" title="Keyboard shortcuts (?)">⌨ ?</button>
+    </div>
+  </div>
+</header>
+
+<!-- ══════════════════════════════════════════════════════════════
+     MAIN APP
+══════════════════════════════════════════════════════════════ -->
+<main id="app">
+
+  <!-- ── HOME ─────────────────────────────────────────────── -->
+  <section id="home" class="section active" aria-label="Home">
+
+    <div class="hero">
+      <div class="hero-badge">Microsoft Azure Administrator</div>
+      <h1>AZ-104 <em>Exam Trainer</em></h1>
+      <p>AI-generated questions every session. Adapts to your weak domains. Tracks your progress until you pass.</p>
+      <div class="hero-actions">
+        <button class="btn btn-primary" id="home-start-btn">▶ Start Practice Session</button>
+        <button class="btn btn-ghost" data-section="examsim">Take Exam Simulation</button>
+      </div>
+    </div>
+
+    <!-- Stats row -->
+    <div class="stats-row">
+      <div class="stat-card">
+        <div class="stat-val" id="stat-sessions">0</div>
+        <div class="stat-lbl">Sessions</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-val" id="stat-questions">0</div>
+        <div class="stat-lbl">Questions Answered</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-val" id="stat-accuracy">—</div>
+        <div class="stat-lbl">Overall Accuracy</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-val" id="stat-wrong">0</div>
+        <div class="stat-lbl">In Wrong Log</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-val" id="stat-bookmarks">0</div>
+        <div class="stat-lbl">Bookmarked</div>
+      </div>
+    </div>
+
+    <!-- Domain overview -->
+    <p class="section-title">Domain Performance</p>
+    <div class="domain-grid" id="home-domain-grid">
+      <!-- Populated by JS -->
+    </div>
+
+  </section>
+
+  <!-- ── PRACTICE ──────────────────────────────────────────── -->
+  <section id="practice" class="section" aria-label="Practice questions">
+
+    <!-- Loading overlay -->
+    <div id="loading-overlay">
+      <div class="loader"></div>
+      <div class="loader-text">Generating questions<span class="loader-dots"></span></div>
+      <div class="loader-text txt3 small" id="loading-sub">Pulling from all AZ-104 domains</div>
+    </div>
+
+    <!-- Question UI (hidden while loading) -->
+    <div id="q-ui" class="hidden">
+
+      <!-- Progress bar -->
+      <div id="q-progress-wrap">
+        <div class="progress-meta">
+          <span class="q-counter">Question <span id="q-num-cur">1</span> of <span id="q-num-tot">10</span></span>
+          <span id="q-session-domain" class="badge"></span>
+          <span class="q-score">✓ <span id="q-correct-count">0</span> &nbsp;✗ <span id="q-wrong-count">0</span></span>
+        </div>
+        <div class="progress-bar" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100">
+          <div class="progress-bar-fill" id="q-bar-fill" style="width:0%"></div>
+        </div>
+      </div>
+
+      <!-- Question card -->
+      <div id="q-card" role="main" aria-live="polite">
+        <div class="q-meta">
+          <span class="q-num" id="q-type-badge-wrap"></span>
+          <span id="q-domain-badge" class="badge"></span>
+        </div>
+        <div class="q-text" id="q-text"></div>
+
+        <!-- Answer area — swapped by question type -->
+        <div id="q-answer-area"></div>
+      </div>
+
+      <!-- Explanation panel -->
+      <div id="explanation-panel" role="complementary" aria-label="Answer explanation">
+        <div id="exp-verdict" class="exp-verdict"></div>
+
+        <div class="exp-title">Explanation</div>
+        <div class="exp-body" id="exp-body"></div>
+
+        <div id="exp-tip-wrap">
+          <div class="exp-title">Memory Tip</div>
+          <div class="exp-tip" id="exp-tip"></div>
+        </div>
+      </div>
+
+      <!-- Action bar -->
+      <div id="q-actions">
+        <button id="submit-btn" class="btn btn-primary" disabled>Submit Answer</button>
+        <button id="next-btn" class="btn btn-ghost hidden">Next →</button>
+        <div class="spacer"></div>
+        <button id="bookmark-btn" class="btn btn-icon btn-ghost" title="Bookmark this question (B)" aria-label="Bookmark">☆</button>
+      </div>
+
+    </div>
+
+    <!-- Start session panel (shown before first session) -->
+    <div id="start-panel" class="card text-center" style="max-width:520px;margin:40px auto;">
+      <p class="section-title" style="text-align:left">Configure Session</p>
+
+      <div class="mb-16" style="text-align:left">
+        <label class="small txt2" style="display:block;margin-bottom:6px;font-family:var(--font-mono);">Questions per session</label>
+        <select id="q-count-select" class="filter-select" style="width:100%">
+          <option value="5">5 questions (quick drill)</option>
+          <option value="10" selected>10 questions (standard)</option>
+          <option value="15">15 questions (deep dive)</option>
+          <option value="20">20 questions (marathon)</option>
+        </select>
+      </div>
+
+      <div class="mb-16" style="text-align:left">
+        <label class="small txt2" style="display:block;margin-bottom:6px;font-family:var(--font-mono);">Focus domain</label>
+        <select id="domain-focus-select" class="filter-select" style="width:100%">
+          <option value="adaptive">Adaptive (weight toward weak areas)</option>
+          <option value="identity">Identity &amp; Governance</option>
+          <option value="storage">Storage</option>
+          <option value="compute">Compute</option>
+          <option value="networking">Networking</option>
+          <option value="monitoring">Monitor &amp; Backup</option>
+        </select>
+      </div>
+
+      <button class="btn btn-primary w-full" id="start-session-btn">▶ Generate Questions</button>
+      <p class="small txt3 mt-12">Questions are AI-generated fresh each session using Claude.</p>
+    </div>
+
+  </section>
+
+  <!-- ── WRONG ANSWERS ─────────────────────────────────────── -->
+  <section id="review" class="section" aria-label="Wrong answers log">
+
+    <div class="review-toolbar">
+      <p class="section-title" style="margin-bottom:0">Wrong Answers Log</p>
+      <div class="spacer" style="flex:1"></div>
+      <select id="wrong-filter-domain" class="filter-select">
+        <option value="all">All Domains</option>
+        <option value="identity">Identity &amp; Governance</option>
+        <option value="storage">Storage</option>
+        <option value="compute">Compute</option>
+        <option value="networking">Networking</option>
+        <option value="monitoring">Monitor &amp; Backup</option>
+      </select>
+      <select id="wrong-filter-status" class="filter-select">
+        <option value="all">All Status</option>
+        <option value="active">Active only</option>
+        <option value="mastered">Mastered only</option>
+      </select>
+      <button class="btn btn-ghost btn-sm" id="export-wrong-btn" title="Copy to clipboard">⬇ Export</button>
+      <button class="btn btn-danger btn-sm" id="clear-wrong-btn">Clear All</button>
+    </div>
+
+    <div id="wrong-log-list">
+      <!-- Populated by JS -->
+    </div>
+
+    <div class="empty-state hidden" id="wrong-empty">
+      <div class="es-icon">✓</div>
+      <div class="es-msg">No wrong answers yet — or none matching this filter.</div>
+    </div>
+
+  </section>
+
+  <!-- ── SKILLS MAP ─────────────────────────────────────────── -->
+  <section id="skillsmap" class="section" aria-label="AZ-104 skills map">
+
+    <p class="section-title">AZ-104 Skills Map</p>
+    <p class="small txt3 mb-20">All testable topics from the official Microsoft exam skills outline. Color = your accuracy on that domain.</p>
+
+    <div id="skillsmap-content">
+      <!-- Populated by JS from DOMAINS constant -->
+    </div>
+
+  </section>
+
+  <!-- ── EXAM TIPS ──────────────────────────────────────────── -->
+  <section id="tips" class="section" aria-label="Exam tips">
+
+    <p class="section-title">AZ-104 Exam Tips</p>
+
+    <div class="tips-grid">
+
+      <div class="tip-card">
+        <div class="tip-icon">🎯</div>
+        <div class="tip-title">Exam Format</div>
+        <div class="tip-body">
+          <ul>
+            <li>40–60 questions, 130 minutes</li>
+            <li>Passing score: 700/1000</li>
+            <li>Question types: MC, multi-select, drag-and-drop, case studies</li>
+            <li>No penalty for guessing — answer every question</li>
+            <li>You cannot go back after case studies</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="tip-card">
+        <div class="tip-icon">🔑</div>
+        <div class="tip-title">Identity &amp; Governance (20–25%)</div>
+        <div class="tip-body">
+          <ul>
+            <li>Know RBAC scope: MG → Sub → RG → Resource</li>
+            <li>Custom roles: Actions, NotActions, DataActions</li>
+            <li>Conditional Access: conditions → controls (grant/session)</li>
+            <li>Azure Policy: deny vs audit vs deployIfNotExists</li>
+            <li>CanNotDelete lock ≠ ReadOnly lock — know the difference</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="tip-card">
+        <div class="tip-icon">💾</div>
+        <div class="tip-title">Storage (15–20%)</div>
+        <div class="tip-body">
+          <ul>
+            <li>Redundancy: LRS → ZRS → GRS → RA-GRS → GZRS → RA-GZRS</li>
+            <li>Blob tiers: Hot/Cool/Cold/Archive — access latency differences</li>
+            <li>SAS tokens: Service SAS vs Account SAS vs User Delegation SAS</li>
+            <li>Lifecycle management rules: target blob tiers by age</li>
+            <li>AzCopy is for large-scale transfers; Azure File Sync for hybrid</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="tip-card">
+        <div class="tip-icon">⚙️</div>
+        <div class="tip-title">Compute (20–25%)</div>
+        <div class="tip-body">
+          <ul>
+            <li>Availability Sets: FD protects from rack failure, UD from updates</li>
+            <li>Availability Zones: physically separate data centers in a region</li>
+            <li>VMSS: auto-scales, uses health probes + scale rules</li>
+            <li>App Service slots: swap without downtime, warm up before swap</li>
+            <li>ARM templates are idempotent — safe to redeploy</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="tip-card">
+        <div class="tip-icon">🌐</div>
+        <div class="tip-title">Networking (15–20%)</div>
+        <div class="tip-body">
+          <ul>
+            <li>VNet peering is non-transitive — hub-and-spoke needs UDRs</li>
+            <li>NSGs: stateful — allow inbound automatically allows return traffic</li>
+            <li>Service endpoints: secure Azure PaaS to your VNet subnet</li>
+            <li>Private endpoints: bring Azure PaaS into your VNet with private IP</li>
+            <li>Azure DNS private zones: link to VNet for resolution</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="tip-card">
+        <div class="tip-icon">📊</div>
+        <div class="tip-title">Monitor &amp; Backup (10–15%)</div>
+        <div class="tip-body">
+          <ul>
+            <li>Azure Monitor → Log Analytics → KQL queries</li>
+            <li>Diagnostic settings: route to Storage, Event Hub, or Log Analytics</li>
+            <li>VM Insights requires Log Analytics agent or AMA</li>
+            <li>Azure Backup: RSV must be in same region as the resource</li>
+            <li>Site Recovery: RPO in seconds, RTO minutes — not same as backup</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="tip-card">
+        <div class="tip-icon">⏱️</div>
+        <div class="tip-title">Test-Taking Strategy</div>
+        <div class="tip-body">
+          <ul>
+            <li>Read the last sentence first — it tells you what's being asked</li>
+            <li>Eliminate answers with wrong service (e.g., wrong region constraint)</li>
+            <li>For "most cost-effective" — exclude premium SKUs unless required</li>
+            <li>For "least admin effort" — look for built-in policies and automations</li>
+            <li>Flag and return — use all 130 minutes</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="tip-card">
+        <div class="tip-icon">🧠</div>
+        <div class="tip-title">Common Traps</div>
+        <div class="tip-body">
+          <ul>
+            <li>Storage account names: 3–24 chars, lowercase letters and numbers only</li>
+            <li>Azure AD Join vs Hybrid Join vs AD DS Join — not interchangeable</li>
+            <li>ReadOnly lock prevents tag changes too — not just deletes</li>
+            <li>RA-GRS read endpoint is always available, GRS is not</li>
+            <li>NSG on subnet AND NIC: both rules evaluated, most restrictive wins</li>
+          </ul>
+        </div>
+      </div>
+
+    </div>
+
+  </section>
+
+  <!-- ── PROGRESS ───────────────────────────────────────────── -->
+  <section id="progress" class="section" aria-label="Your progress">
+
+    <p class="section-title">Your Progress</p>
+
+    <div class="progress-layout">
+
+      <!-- Domain accuracy -->
+      <div class="card">
+        <p class="section-title">Domain Accuracy</p>
+        <div id="domain-acc-list">
+          <!-- Populated by JS -->
+        </div>
+      </div>
+
+      <!-- Session history -->
+      <div class="card">
+        <p class="section-title">Session History</p>
+        <div id="session-history-list">
+          <!-- Populated by JS -->
+        </div>
+        <div class="empty-state hidden" id="session-hist-empty">
+          <div class="es-msg">No sessions yet.</div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Weak domain callout -->
+    <div class="panel mt-16" id="weak-domain-panel" style="display:none">
+      <div class="flex items-center gap-12">
+        <span style="font-size:1.3rem">⚠️</span>
+        <div>
+          <div class="small" style="font-weight:600;color:var(--yellow)">Focus Area Detected</div>
+          <div class="small txt2" id="weak-domain-msg"></div>
+        </div>
+        <div class="spacer" style="flex:1"></div>
+        <button class="btn btn-ghost btn-sm" id="drill-weak-btn">Drill It</button>
+      </div>
+    </div>
+
+    <!-- Reset -->
+    <div class="flex" style="justify-content:flex-end;margin-top:24px;">
+      <button class="btn btn-danger btn-sm" id="reset-progress-btn">Reset All Progress</button>
+    </div>
+
+  </section>
+
+  <!-- ── EXAM SIM ────────────────────────────────────────────── -->
+  <section id="examsim" class="section" aria-label="Exam simulation">
+
+    <p class="section-title">Exam Simulation Mode</p>
+
+    <!-- Pre-sim setup -->
+    <div id="sim-setup" class="card" style="max-width:520px;margin:0 auto;">
+      <p class="small txt2 mb-16">Simulates real AZ-104 conditions: timed, no explanations during the exam, final score at the end.</p>
+      <div class="mb-16">
+        <label class="small txt2" style="display:block;margin-bottom:6px;font-family:var(--font-mono);">Number of questions</label>
+        <select id="sim-q-count" class="filter-select" style="width:100%">
+          <option value="20">20 questions (~52 min)</option>
+          <option value="30">30 questions (~78 min)</option>
+          <option value="40" selected>40 questions (~104 min)</option>
+        </select>
+      </div>
+      <button class="btn btn-primary w-full" id="start-sim-btn">▶ Begin Simulation</button>
+    </div>
+
+    <!-- Sim in progress -->
+    <div id="sim-active" class="hidden">
+      <div class="sim-controls">
+        <div id="sim-timer">130:00</div>
+        <div class="small txt3" id="sim-progress-label">Question 1 of 40</div>
+        <div class="spacer" style="flex:1"></div>
+        <button class="btn btn-danger btn-sm" id="end-sim-btn">End &amp; Score</button>
+      </div>
+      <div id="sim-q-card" class="card">
+        <div class="q-meta" id="sim-q-meta"></div>
+        <div class="q-text" id="sim-q-text"></div>
+        <div id="sim-answer-area"></div>
+      </div>
+      <div class="flex gap-12 mt-16">
+        <button class="btn btn-ghost" id="sim-prev-btn" disabled>← Prev</button>
+        <button class="btn btn-ghost" id="sim-next-btn">Next →</button>
+        <div class="spacer" style="flex:1"></div>
+        <button class="btn btn-primary" id="sim-submit-btn">Submit Exam</button>
+      </div>
+    </div>
+
+    <!-- Sim results -->
+    <div id="sim-results" class="hidden card" style="max-width:560px;margin:0 auto;text-align:center;">
+      <p class="section-title" style="text-align:left">Simulation Results</p>
+      <div class="session-summary-score">
+        <div class="score-circle" id="sim-score-circle">
+          <div class="score-num" id="sim-score-pct">—</div>
+          <div class="score-den" id="sim-score-frac">—</div>
+        </div>
+        <div class="score-msg" id="sim-score-msg"></div>
+      </div>
+      <div id="sim-domain-breakdown" class="session-domain-breakdown"></div>
+      <div class="flex gap-12 mt-16" style="justify-content:center;">
+        <button class="btn btn-primary" id="sim-retry-btn">Try Again</button>
+        <button class="btn btn-ghost" data-section="review">Review Wrong Answers</button>
+      </div>
+    </div>
+
+  </section>
+
+</main>
+
+<!-- ══════════════════════════════════════════════════════════════
+     KEYBOARD SHORTCUTS OVERLAY
+══════════════════════════════════════════════════════════════ -->
+<div id="shortcuts-overlay" class="modal-overlay" role="dialog" aria-modal="true" aria-label="Keyboard shortcuts">
+  <div class="modal-box">
+    <div class="modal-header">
+      <div class="modal-title">Keyboard Shortcuts</div>
+      <button class="modal-close" id="shortcuts-close" aria-label="Close">✕</button>
+    </div>
+    <div class="modal-body">
+
+      <div class="shortcut-group">
+        <div class="shortcut-group-title">Navigation</div>
+        <div class="shortcut-row"><span class="kbd">1–7</span><span class="shortcut-desc">Jump to nav section (Home → Exam Sim)</span></div>
+        <div class="shortcut-row"><span class="kbd">?</span><span class="shortcut-desc">Toggle this shortcuts panel</span></div>
+        <div class="shortcut-row"><span class="kbd">Esc</span><span class="shortcut-desc">Close overlays / modals</span></div>
+      </div>
+
+      <div class="shortcut-group">
+        <div class="shortcut-group-title">Practice — Answering</div>
+        <div class="shortcut-row"><span class="kbd">A</span><span class="shortcut-desc">Select option A (MC questions)</span></div>
+        <div class="shortcut-row"><span class="kbd">B</span><span class="shortcut-desc">Select option B</span></div>
+        <div class="shortcut-row"><span class="kbd">C</span><span class="shortcut-desc">Select option C</span></div>
+        <div class="shortcut-row"><span class="kbd">D</span><span class="shortcut-desc">Select option D</span></div>
+        <div class="shortcut-row"><span class="kbd">Y</span><span class="shortcut-desc">Yes (Y/N questions)</span></div>
+        <div class="shortcut-row"><span class="kbd">N</span><span class="shortcut-desc">No (Y/N questions)</span></div>
+      </div>
+
+      <div class="shortcut-group">
+        <div class="shortcut-group-title">Practice — Flow</div>
+        <div class="shortcut-row"><span class="kbd">Space</span><span class="shortcut-desc">Submit answer</span></div>
+        <div class="shortcut-row"><span class="kbd">Enter</span><span class="shortcut-desc">Submit answer / advance to next</span></div>
+        <div class="shortcut-row"><span class="kbd">→</span><span class="shortcut-desc">Next question (after answering)</span></div>
+        <div class="shortcut-row"><span class="kbd">Bkmark</span><span class="shortcut-desc">Bookmark current question (B key)</span></div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════════════
+     SESSION SUMMARY MODAL
+══════════════════════════════════════════════════════════════ -->
+<div id="session-modal" class="modal-overlay" role="dialog" aria-modal="true" aria-label="Session summary">
+  <div class="modal-box">
+    <div class="modal-header">
+      <div class="modal-title">Session Complete</div>
+      <button class="modal-close" id="session-modal-close" aria-label="Close">✕</button>
+    </div>
+    <div class="modal-body">
+
+      <div class="session-summary-score">
+        <div class="score-circle" id="summary-circle">
+          <div class="score-num" id="summary-correct">0</div>
+          <div class="score-den" id="summary-total">/ 0</div>
+        </div>
+        <div class="score-msg" id="summary-msg"></div>
+      </div>
+
+      <div class="session-domain-breakdown" id="summary-domain-breakdown"></div>
+
+      <div class="panel mt-16" id="summary-weak-panel" style="display:none">
+        <span class="small" style="color:var(--yellow);">⚠ </span>
+        <span class="small txt2" id="summary-weak-msg"></span>
+      </div>
+
+      <div class="flex gap-12 mt-16" style="flex-wrap:wrap">
+        <button class="btn btn-primary" id="summary-new-session-btn">▶ New Session</button>
+        <button class="btn btn-ghost" id="summary-review-btn">Review Wrong Answers</button>
+        <button class="btn btn-ghost" id="summary-close-btn">Close</button>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════════════
+     TOAST CONTAINER
+══════════════════════════════════════════════════════════════ -->
+<div id="toast-container" aria-live="polite" aria-atomic="false"></div>
+
+<script>
+'use strict';
+/* ═══════════════════════════════════════════════════════════════
+   CONSTANTS
+═══════════════════════════════════════════════════════════════ */
+const LS = 'az104v2_';
+const API = '/.netlify/functions/claude';
+const PASS_SCORE = 700;
+const MODEL = 'claude-haiku-4-5-20251001';
+
+const DOMAINS = {
+  identity: {
+    name: 'Identity & Governance',
+    weight: 22,
+    color: 'var(--d-identity)',
+    badge: 'badge-identity',
+    topics: [
+      'Entra ID user and group management',
+      'Bulk user operations and dynamic groups',
+      'External identities and B2B guests',
+      'RBAC role assignments and scope inheritance',
+      'Custom RBAC role definitions',
+      'Azure AD Privileged Identity Management',
+      'Conditional Access policies and named locations',
+      'Multi-factor authentication configuration',
+      'Self-service password reset',
+      'Azure Policy definitions and assignments',
+      'Policy initiatives and compliance evaluation',
+      'Management groups hierarchy',
+      'Resource locks (CanNotDelete vs ReadOnly)',
+      'Cost Management and budgets',
+      'Tags and tagging governance',
+      'Subscription and resource group management',
+    ],
+  },
+  storage: {
+    name: 'Storage',
+    weight: 17,
+    color: 'var(--d-storage)',
+    badge: 'badge-storage',
+    topics: [
+      'Storage account types (GPv2, Blob, Premium)',
+      'Redundancy options: LRS, ZRS, GRS, RA-GRS, GZRS, RA-GZRS',
+      'Blob storage tiers: Hot, Cool, Cold, Archive',
+      'Blob lifecycle management policies',
+      'Blob versioning, soft delete, and snapshots',
+      'Shared Access Signatures (SAS) types and permissions',
+      'Stored access policies',
+      'Storage account network rules and firewalls',
+      'Azure Files shares and snapshots',
+      'Azure File Sync components and topology',
+      'AzCopy commands and authentication',
+      'Azure Import/Export service',
+      'Storage account encryption and CMK',
+      'Blob change feed and events',
+      'Static website hosting',
+    ],
+  },
+  compute: {
+    name: 'Compute',
+    weight: 22,
+    color: 'var(--d-compute)',
+    badge: 'badge-compute',
+    topics: [
+      'VM sizes, families, and use cases',
+      'Availability Sets: fault domains and update domains',
+      'Availability Zones and regional pairs',
+      'VM Scale Sets (VMSS) scaling policies',
+      'Azure Dedicated Hosts',
+      'ARM templates structure and deployment modes',
+      'Bicep templates and modules',
+      'VM disk types: OS, data, temp, managed',
+      'Azure Disk encryption (ADE vs SSE)',
+      'VM extensions and custom script extension',
+      'App Service plans and pricing tiers',
+      'App Service deployment slots and swap',
+      'App Service networking: VNet integration, private endpoints',
+      'Azure Container Instances (ACI)',
+      'Azure Container Registry (ACR)',
+      'Azure Kubernetes Service (AKS) basics',
+      'Azure Functions consumption vs dedicated plan',
+    ],
+  },
+  networking: {
+    name: 'Networking',
+    weight: 17,
+    color: 'var(--d-networking)',
+    badge: 'badge-networking',
+    topics: [
+      'Virtual network (VNet) address spaces and subnets',
+      'VNet peering: local and global, non-transitive routing',
+      'Network Security Groups: rules, priority, stateful',
+      'NSG association: subnet vs NIC',
+      'Application Security Groups',
+      'User-Defined Routes (UDRs) and route tables',
+      'Azure Bastion service tiers',
+      'Azure VPN Gateway: SKUs and VPN types',
+      'ExpressRoute circuits and peering types',
+      'Azure Load Balancer: SKUs, rules, health probes',
+      'Azure Application Gateway and WAF',
+      'Azure Front Door and Traffic Manager',
+      'Service endpoints vs private endpoints',
+      'Azure DNS zones: public and private',
+      'Network Watcher tools: flow logs, packet capture, IP flow verify',
+      'Azure Firewall policies and DNAT rules',
+    ],
+  },
+  monitoring: {
+    name: 'Monitor & Backup',
+    weight: 12,
+    color: 'var(--d-monitoring)',
+    badge: 'badge-monitoring',
+    topics: [
+      'Azure Monitor metrics and metric alerts',
+      'Log Analytics workspaces and agents',
+      'KQL query basics for Log Analytics',
+      'Diagnostic settings: destinations and categories',
+      'Azure Monitor action groups and alert rules',
+      'VM Insights and dependency maps',
+      'Application Insights basics',
+      'Network Watcher connection monitor',
+      'Azure Backup: Recovery Services Vault',
+      'Azure Backup policies and retention',
+      'VM backup and restore operations',
+      'Azure Files backup',
+      'Azure Site Recovery: replication and failover',
+      'Azure Monitor Workbooks',
+    ],
+  },
+};
+
+const DOMAIN_KEYS = Object.keys(DOMAINS);
+
+/* ═══════════════════════════════════════════════════════════════
+   STATE — persisted to localStorage
+═══════════════════════════════════════════════════════════════ */
+function loadState() {
+  try { return JSON.parse(localStorage.getItem(LS + 'state') || 'null') || defaultState(); }
+  catch { return defaultState(); }
+}
+
+function defaultState() {
+  const domainPerf = {};
+  DOMAIN_KEYS.forEach(k => { domainPerf[k] = { correct: 0, total: 0, baseline: 65 }; });
+  return {
+    sessions: 0,
+    totalQ: 0,
+    totalCorrect: 0,
+    domainPerf,
+    wrongLog: [],       // [{id, q, yourAns, correctAns, domain, exp, tip, ts}]
+    sessionHistory: [], // [{date, correct, total, domainScores}]
+    bookmarks: [],      // [question id strings]
+    streakDays: 0,
+    lastSessionDate: null,
+  };
+}
+
+function saveState() {
+  try { localStorage.setItem(LS + 'state', JSON.stringify(state)); } catch {}
+}
+
+let state = loadState();
+
+/* ═══════════════════════════════════════════════════════════════
+   SESSION (in-memory only — not persisted until complete)
+═══════════════════════════════════════════════════════════════ */
+let session = {
+  questions: [],   // parsed question objects from AI
+  idx: 0,
+  answers: [],     // {correct:bool, domain, yourAns, correctAns}
+  submitted: false,
+  lastApiCall: 0,
+  debounceMs: 2000,
+};
+
+/* ═══════════════════════════════════════════════════════════════
+   UTILITIES
+═══════════════════════════════════════════════════════════════ */
+function safe(str) {
+  if (str == null) return '';
+  return String(str)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;');
+}
+
+function el(id) { return document.getElementById(id); }
+
+function toast(msg, type = 'info', duration = 2800) {
+  const c = el('toast-container');
+  const t = document.createElement('div');
+  t.className = 'toast ' + type;
+  t.textContent = msg;
+  c.appendChild(t);
+  setTimeout(() => t.remove(), duration + 300);
+}
+
+function domainColor(key) { return DOMAINS[key] ? DOMAINS[key].color : 'var(--txt3)'; }
+function domainBadge(key) { return DOMAINS[key] ? DOMAINS[key].badge : ''; }
+function domainName(key)  { return DOMAINS[key] ? DOMAINS[key].name : key; }
+
+function pct(correct, total) {
+  if (!total) return null;
+  return Math.round((correct / total) * 100);
+}
+
+function pctColor(p) {
+  if (p === null) return 'var(--txt3)';
+  if (p >= 80) return 'var(--green)';
+  if (p >= 65) return 'var(--yellow)';
+  return 'var(--red)';
+}
+
+function scoreMsg(correct, total) {
+  const p = pct(correct, total);
+  if (p === null) return '';
+  if (p >= 90) return 'Outstanding! You\'re exam-ready on these topics.';
+  if (p >= 80) return 'Strong performance. Keep drilling weak spots.';
+  if (p >= 65) return 'Getting there — review the wrong answers carefully.';
+  return 'Needs work. Focus on wrong answers and drill again.';
+}
+
+function updateStreak() {
+  const today = new Date().toDateString();
+  const last  = state.lastSessionDate;
+  if (last === today) return;
+  const yesterday = new Date(Date.now() - 86400000).toDateString();
+  state.streakDays = (last === yesterday) ? state.streakDays + 1 : 1;
+  state.lastSessionDate = today;
+}
+
+function renderStreak() {
+  el('streak-val').textContent = state.streakDays || 0;
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   NAVIGATION
+═══════════════════════════════════════════════════════════════ */
+const NAV_SECTIONS = ['home','practice','review','skillsmap','tips','progress','examsim'];
+
+function showSection(id) {
+  document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+  document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+  const sec = el(id);
+  if (sec) sec.classList.add('active');
+  const btn = document.querySelector('[data-section="' + id + '"]');
+  if (btn) btn.classList.add('active');
+
+  // Render on-demand
+  if (id === 'home')      renderHome();
+  if (id === 'review')    renderWrongLog();
+  if (id === 'skillsmap') renderSkillsMap();
+  if (id === 'progress')  renderProgress();
+  if (id === 'practice' && session.questions.length === 0) showStartPanel();
+}
+
+function showStartPanel() {
+  el('loading-overlay').classList.remove('show');
+  el('q-ui').classList.add('hidden');
+  el('start-panel').classList.remove('hidden');
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   HOME
+═══════════════════════════════════════════════════════════════ */
+function renderHome() {
+  const s = state;
+  el('stat-sessions').textContent  = s.sessions;
+  el('stat-questions').textContent = s.totalQ;
+  el('stat-wrong').textContent     = s.wrongLog.filter(w => !w.mastered).length;
+  el('stat-bookmarks').textContent = s.bookmarks.length;
+
+  const p = pct(s.totalCorrect, s.totalQ);
+  el('stat-accuracy').textContent = p !== null ? p + '%' : '—';
+
+  const grid = el('home-domain-grid');
+  grid.innerHTML = '';
+  DOMAIN_KEYS.forEach(key => {
+    const d    = s.domainPerf[key];
+    const dom  = DOMAINS[key];
+    const p    = pct(d.correct, d.total);
+    const disp = p !== null ? p + '%' : d.baseline + '%';
+    const val  = p !== null ? p : d.baseline;
+    const col  = pctColor(val);
+    const weak = val < 65;
+
+    const tile = document.createElement('div');
+    tile.className = 'domain-tile';
+    tile.setAttribute('data-section', 'practice');
+
+    const top = document.createElement('div');
+    top.className = 'tile-top';
+
+    const nameEl = document.createElement('div');
+    nameEl.className = 'tile-name';
+    nameEl.textContent = dom.name;
+
+    const pctEl = document.createElement('div');
+    pctEl.className = 'tile-pct';
+    pctEl.style.color = col;
+    pctEl.textContent = disp;
+
+    top.appendChild(nameEl);
+    if (weak) {
+      const w = document.createElement('span');
+      w.className = 'badge badge-weak';
+      w.textContent = 'WEAK';
+      top.appendChild(w);
+    }
+    top.appendChild(pctEl);
+
+    const bar = document.createElement('div');
+    bar.className = 'tile-bar';
+    const fill = document.createElement('div');
+    fill.className = 'tile-bar-fill';
+    fill.style.width = val + '%';
+    fill.style.background = col;
+    bar.appendChild(fill);
+
+    tile.appendChild(top);
+    tile.appendChild(bar);
+    grid.appendChild(tile);
+  });
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   SKILLS MAP
+═══════════════════════════════════════════════════════════════ */
+function renderSkillsMap() {
+  const wrap = el('skillsmap-content');
+  wrap.innerHTML = '';
+
+  DOMAIN_KEYS.forEach(key => {
+    const dom  = DOMAINS[key];
+    const d    = state.domainPerf[key];
+    const p    = pct(d.correct, d.total);
+    const val  = p !== null ? p : d.baseline;
+    const col  = pctColor(val);
+
+    const block = document.createElement('div');
+    block.className = 'domain-block';
+
+    // Header
+    const hdr = document.createElement('div');
+    hdr.className = 'domain-header';
+
+    const badge = document.createElement('span');
+    badge.className = 'badge ' + dom.badge;
+    badge.textContent = dom.name;
+
+    const wt = document.createElement('span');
+    wt.className = 'domain-weight';
+    wt.textContent = dom.weight + '% of exam';
+
+    const pctEl = document.createElement('span');
+    pctEl.className = 'domain-pct';
+    pctEl.style.color = col;
+    pctEl.textContent = (p !== null ? p : d.baseline) + '%';
+
+    hdr.appendChild(badge);
+    hdr.appendChild(wt);
+    hdr.appendChild(pctEl);
+
+    // Big bar
+    const bigBar = document.createElement('div');
+    bigBar.className = 'big-bar';
+    const bigFill = document.createElement('div');
+    bigFill.className = 'big-bar-fill';
+    bigFill.style.width = val + '%';
+    bigFill.style.background = col;
+    bigBar.appendChild(bigFill);
+
+    // Topic chips
+    const list = document.createElement('div');
+    list.className = 'skill-list';
+    dom.topics.forEach(t => {
+      const chip = document.createElement('div');
+      chip.className = 'skill-chip';
+      chip.textContent = t;
+      list.appendChild(chip);
+    });
+
+    block.appendChild(hdr);
+    block.appendChild(bigBar);
+    block.appendChild(list);
+    wrap.appendChild(block);
+  });
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   ADAPTIVE TOPIC SELECTION
+═══════════════════════════════════════════════════════════════ */
+function pickTopics(focusDomain, count) {
+  // Weight = 70% live accuracy + 30% exam baseline (inverted: lower score → higher weight)
+  const weights = {};
+  DOMAIN_KEYS.forEach(key => {
+    if (focusDomain !== 'adaptive' && focusDomain !== key) {
+      weights[key] = 0;
+      return;
+    }
+    const d   = state.domainPerf[key];
+    const p   = pct(d.correct, d.total);
+    const live = p !== null ? p : d.baseline;
+    // invert: 100-score, min 5
+    weights[key] = Math.max(5, 100 - live);
+  });
+
+  const totalW = Object.values(weights).reduce((a, b) => a + b, 0);
+  const topics = [];
+
+  for (let i = 0; i < count; i++) {
+    let r = Math.random() * totalW;
+    let chosen = DOMAIN_KEYS[0];
+    for (const key of DOMAIN_KEYS) {
+      r -= weights[key];
+      if (r <= 0) { chosen = key; break; }
+    }
+    const pool = DOMAINS[chosen].topics;
+    const topic = pool[Math.floor(Math.random() * pool.length)];
+    topics.push({ domain: chosen, topic });
+  }
+  return topics;
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   AI QUESTION FETCH
+═══════════════════════════════════════════════════════════════ */
+async function fetchQuestions(topicList) {
+  const now = Date.now();
+  if (now - session.lastApiCall < session.debounceMs) {
+    throw new Error('Please wait a moment before starting a new session.');
+  }
+  session.lastApiCall = now;
+
+  const topicLines = topicList.map((t, i) =>
+    (i + 1) + '. Domain: ' + domainName(t.domain) + ' | Topic: ' + t.topic
+  ).join('\n');
+
+  const prompt = 'Generate exactly ' + topicList.length + ' AZ-104 exam questions, one per topic listed below.\n\n' +
+    'Topics:\n' + topicLines + '\n\n' +
+    'Return ONLY a valid JSON array. No markdown, no prose, no code fences. ' +
+    'Each element must follow this schema:\n' +
+    '{\n' +
+    '  "type": "mc" | "yn" | "ms" | "dnd",\n' +
+    '  "domain": "<domain key: identity|storage|compute|networking|monitoring>",\n' +
+    '  "q": "<question text>",\n' +
+    '  "opts": ["A text","B text","C text","D text"],   // mc only, 4 items\n' +
+    '  "ans": 0,                                         // mc: 0-3 index; yn: 0=Yes 1=No; ms: [0,2]; dnd: [2,0,3,1]\n' +
+    '  "pick": 2,                                        // ms only: how many to pick\n' +
+    '  "exp": "<explanation why the answer is correct and why distractors are wrong>",\n' +
+    '  "tip": "<one-line memory trick>"\n' +
+    '}\n\n' +
+    'Rules:\n' +
+    '- mc: 4 options, ans is 0-3. Distribute correct answers across A/B/C/D roughly equally.\n' +
+    '- yn: no opts field, ans is 0 (Yes) or 1 (No).\n' +
+    '- ms: 4 options, ans is array of 0-3 indices (exactly pick count).\n' +
+    '- dnd: items in opts array (4-5 items), ans is the correct order as array of original indices.\n' +
+    '- Every question must test what an admin DOES, not what a concept IS.\n' +
+    '- Wrong options must be definitively wrong, not ambiguous.\n' +
+    '- Exp and tip must be plain text, no markdown.\n' +
+    'Return ONLY the JSON array.';
+
+  const sysPrompt = 'You are a Microsoft AZ-104 exam question writer and Azure subject matter expert with deep, accurate knowledge of all Azure services as of 2025. ' +
+    'ACCURACY RULES: Every fact, limit, and behavior must be correct. If uncertain about a specific number, do not make it the crux of a question. ' +
+    'Wrong answer options must be definitively incorrect. The correct answer must be unambiguously right. ' +
+    'Return ONLY valid JSON — no markdown code fences, no prose.';
+
+  const resp = await fetch(API, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      model: MODEL,
+      max_tokens: 4000,
+      system: sysPrompt,
+      prompt,
+    }),
+  });
+
+  if (!resp.ok) {
+    const err = await resp.json().catch(() => ({}));
+    throw new Error(err?.error?.message || 'API error ' + resp.status);
+  }
+
+  const data = await resp.json();
+  const text = data?.content?.[0]?.text || '';
+
+  // Extract JSON array from response (handle any stray text)
+  const match = text.match(/\[[\s\S]*\]/);
+  if (!match) throw new Error('AI returned unexpected format. Please try again.');
+
+  const questions = JSON.parse(match[0]);
+  if (!Array.isArray(questions) || questions.length === 0) throw new Error('No questions returned.');
+  return questions;
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   SESSION START
+═══════════════════════════════════════════════════════════════ */
+async function startSession() {
+  const btn = el('start-session-btn');
+  btn.disabled = true;
+
+  const count  = parseInt(el('q-count-select').value) || 10;
+  const focus  = el('domain-focus-select').value || 'adaptive';
+  const topics = pickTopics(focus, count);
+
+  // Show loading
+  el('start-panel').classList.add('hidden');
+  el('q-ui').classList.add('hidden');
+  el('loading-overlay').classList.add('show');
+  el('loading-sub').textContent = 'Generating ' + count + ' adaptive questions...';
+
+  try {
+    const questions = await fetchQuestions(topics);
+    session.questions = questions;
+    session.idx       = 0;
+    session.answers   = [];
+    session.submitted = false;
+
+    el('loading-overlay').classList.remove('show');
+    el('q-ui').classList.remove('hidden');
+    el('q-num-tot').textContent = questions.length;
+    renderQuestion();
+  } catch (err) {
+    el('loading-overlay').classList.remove('show');
+    el('start-panel').classList.remove('hidden');
+    toast(err.message || 'Failed to generate questions.', 'error', 4000);
+  } finally {
+    btn.disabled = false;
+  }
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   QUESTION RENDERING
+═══════════════════════════════════════════════════════════════ */
+function renderQuestion() {
+  const q   = session.questions[session.idx];
+  const idx = session.idx;
+  const tot = session.questions.length;
+
+  // Progress
+  el('q-num-cur').textContent = idx + 1;
+  const barPct = Math.round((idx / tot) * 100);
+  el('q-bar-fill').style.width = barPct + '%';
+
+  // Score counters
+  const correct = session.answers.filter(a => a.correct).length;
+  const wrong   = session.answers.filter(a => !a.correct).length;
+  el('q-correct-count').textContent = correct;
+  el('q-wrong-count').textContent   = wrong;
+
+  // Domain badge
+  const domBadge = el('q-session-domain');
+  domBadge.className = 'badge ' + domainBadge(q.domain);
+  domBadge.textContent = domainName(q.domain);
+
+  // Type badge
+  const typeWrap = el('q-type-badge-wrap');
+  typeWrap.innerHTML = '';
+  const typeBadge = document.createElement('span');
+  typeBadge.className = 'badge badge-' + (q.type || 'mc');
+  typeBadge.textContent = ({ mc:'MC', yn:'YES/NO', ms:'MULTI-SELECT', dnd:'ORDERING' })[q.type] || 'MC';
+  typeWrap.appendChild(typeBadge);
+
+  // Question text
+  el('q-text').textContent = q.q || '';
+
+  // Answer area
+  const area = el('q-answer-area');
+  area.innerHTML = '';
+  session.submitted = false;
+
+  if (q.type === 'yn') renderYN(area, q);
+  else if (q.type === 'ms') renderMS(area, q);
+  else if (q.type === 'dnd') renderDND(area, q);
+  else renderMC(area, q);
+
+  // Explanation — hide
+  el('explanation-panel').classList.remove('show');
+  el('q-card').classList.remove('correct-glow', 'incorrect-glow');
+
+  // Buttons
+  el('submit-btn').classList.remove('hidden');
+  el('submit-btn').disabled = true;
+  el('next-btn').classList.add('hidden');
+
+  // Bookmark
+  updateBookmarkBtn(q);
+}
+
+/* MC */
+function renderMC(area, q) {
+  const opts = q.opts || [];
+  const wrap = document.createElement('div');
+  wrap.className = 'mc-options';
+
+  opts.forEach((text, i) => {
+    const btn = document.createElement('button');
+    btn.className = 'mc-option';
+    btn.dataset.idx = i;
+
+    const key = document.createElement('span');
+    key.className = 'opt-key';
+    key.textContent = 'ABCD'[i];
+
+    const txt = document.createElement('span');
+    txt.className = 'opt-text';
+    txt.textContent = text;
+
+    btn.appendChild(key);
+    btn.appendChild(txt);
+    btn.addEventListener('click', () => {
+      if (session.submitted) return;
+      wrap.querySelectorAll('.mc-option').forEach(b => b.classList.remove('selected'));
+      btn.classList.add('selected');
+      el('submit-btn').disabled = false;
+    });
+    wrap.appendChild(btn);
+  });
+
+  area.appendChild(wrap);
+}
+
+/* YN */
+function renderYN(area, q) {
+  const wrap = document.createElement('div');
+  wrap.className = 'yn-options';
+
+  ['Yes', 'No'].forEach((label, i) => {
+    const btn = document.createElement('button');
+    btn.className = 'yn-btn';
+    btn.dataset.idx = i;
+    btn.textContent = label;
+    btn.addEventListener('click', () => {
+      if (session.submitted) return;
+      wrap.querySelectorAll('.yn-btn').forEach(b => b.classList.remove('selected'));
+      btn.classList.add('selected');
+      el('submit-btn').disabled = false;
+    });
+    wrap.appendChild(btn);
+  });
+
+  area.appendChild(wrap);
+}
+
+/* MS */
+function renderMS(area, q) {
+  const pickCount = q.pick || 2;
+  const opts = q.opts || [];
+
+  const hint = document.createElement('div');
+  hint.className = 'ms-hint';
+  hint.textContent = 'Select ' + pickCount + ' answer' + (pickCount > 1 ? 's' : '') + '.';
+  area.appendChild(hint);
+
+  const wrap = document.createElement('div');
+  wrap.className = 'ms-options';
+
+  opts.forEach((text, i) => {
+    const btn = document.createElement('button');
+    btn.className = 'ms-option';
+    btn.dataset.idx = i;
+
+    const chk = document.createElement('span');
+    chk.className = 'ms-check';
+
+    const txt = document.createElement('span');
+    txt.className = 'opt-text';
+    txt.textContent = text;
+
+    btn.appendChild(chk);
+    btn.appendChild(txt);
+    btn.addEventListener('click', () => {
+      if (session.submitted) return;
+      const sel = wrap.querySelectorAll('.ms-option.selected');
+      if (btn.classList.contains('selected')) {
+        btn.classList.remove('selected');
+        chk.textContent = '';
+      } else if (sel.length < pickCount) {
+        btn.classList.add('selected');
+        chk.textContent = '✓';
+      }
+      el('submit-btn').disabled = wrap.querySelectorAll('.ms-option.selected').length !== pickCount;
+    });
+    wrap.appendChild(btn);
+  });
+
+  area.appendChild(wrap);
+}
+
+/* DND */
+function renderDND(area, q) {
+  const opts = q.opts || [];
+
+  const hint = document.createElement('div');
+  hint.className = 'dnd-hint';
+  hint.textContent = 'Drag to arrange in the correct order.';
+  area.appendChild(hint);
+
+  const wrap = document.createElement('div');
+  wrap.className = 'dnd-container';
+  wrap.id = 'dnd-wrap';
+
+  // Start with shuffled order
+  const shuffled = [...opts.keys()].sort(() => Math.random() - 0.5);
+
+  shuffled.forEach((origIdx, pos) => {
+    const item = createDNDItem(opts[origIdx], origIdx, pos + 1, wrap);
+    wrap.appendChild(item);
+  });
+
+  area.appendChild(wrap);
+  el('submit-btn').disabled = false; // DND always has an answer (order may be wrong)
+  initDND(wrap);
+}
+
+function createDNDItem(text, origIdx, pos, wrap) {
+  const item = document.createElement('div');
+  item.className = 'dnd-item';
+  item.draggable = true;
+  item.dataset.orig = origIdx;
+
+  const handle = document.createElement('span');
+  handle.className = 'dnd-handle';
+  handle.textContent = '⠿';
+  handle.setAttribute('aria-hidden', 'true');
+
+  const posEl = document.createElement('span');
+  posEl.className = 'dnd-pos';
+  posEl.textContent = pos;
+
+  const txt = document.createElement('span');
+  txt.className = 'dnd-text';
+  txt.textContent = text;
+
+  item.appendChild(handle);
+  item.appendChild(posEl);
+  item.appendChild(txt);
+  return item;
+}
+
+function updateDNDPositions(wrap) {
+  wrap.querySelectorAll('.dnd-item').forEach((item, i) => {
+    item.querySelector('.dnd-pos').textContent = i + 1;
+  });
+}
+
+/* DND — mouse drag */
+function initDND(wrap) {
+  let dragging = null;
+
+  wrap.addEventListener('dragstart', e => {
+    dragging = e.target.closest('.dnd-item');
+    if (!dragging) return;
+    dragging.classList.add('dragging');
+    e.dataTransfer.effectAllowed = 'move';
+  });
+
+  wrap.addEventListener('dragend', () => {
+    if (dragging) { dragging.classList.remove('dragging'); dragging = null; }
+    wrap.querySelectorAll('.dnd-item').forEach(i => i.classList.remove('drag-over'));
+    updateDNDPositions(wrap);
+  });
+
+  wrap.addEventListener('dragover', e => {
+    e.preventDefault();
+    e.dataTransfer.dropEffect = 'move';
+    const target = e.target.closest('.dnd-item');
+    if (!target || target === dragging) return;
+    wrap.querySelectorAll('.dnd-item').forEach(i => i.classList.remove('drag-over'));
+    target.classList.add('drag-over');
+    const rect = target.getBoundingClientRect();
+    const after = e.clientY > rect.top + rect.height / 2;
+    wrap.insertBefore(dragging, after ? target.nextSibling : target);
+  });
+
+  wrap.addEventListener('drop', e => { e.preventDefault(); });
+
+  // Touch support
+  let touchItem = null, touchClone = null, touchStartY = 0;
+
+  wrap.addEventListener('touchstart', e => {
+    touchItem = e.target.closest('.dnd-item');
+    if (!touchItem || session.submitted) return;
+    touchStartY = e.touches[0].clientY;
+    touchItem.classList.add('dragging');
+
+    touchClone = touchItem.cloneNode(true);
+    touchClone.style.cssText = 'position:fixed;pointer-events:none;opacity:0.85;z-index:999;width:' + touchItem.offsetWidth + 'px;left:' + touchItem.getBoundingClientRect().left + 'px;top:' + touchItem.getBoundingClientRect().top + 'px;';
+    document.body.appendChild(touchClone);
+  }, { passive: true });
+
+  wrap.addEventListener('touchmove', e => {
+    if (!touchItem || !touchClone) return;
+    e.preventDefault();
+    const touch = e.touches[0];
+    touchClone.style.top = (touch.clientY - 24) + 'px';
+
+    const els = [...wrap.querySelectorAll('.dnd-item:not(.dragging)')];
+    wrap.querySelectorAll('.dnd-item').forEach(i => i.classList.remove('drag-over'));
+    let closest = null, closestDist = Infinity;
+    els.forEach(item => {
+      const rect = item.getBoundingClientRect();
+      const dist = Math.abs(rect.top + rect.height / 2 - touch.clientY);
+      if (dist < closestDist) { closestDist = dist; closest = item; }
+    });
+    if (closest) {
+      closest.classList.add('drag-over');
+      const rect = closest.getBoundingClientRect();
+      const after = touch.clientY > rect.top + rect.height / 2;
+      wrap.insertBefore(touchItem, after ? closest.nextSibling : closest);
+    }
+  }, { passive: false });
+
+  wrap.addEventListener('touchend', () => {
+    if (touchItem) { touchItem.classList.remove('dragging'); touchItem = null; }
+    if (touchClone) { touchClone.remove(); touchClone = null; }
+    wrap.querySelectorAll('.dnd-item').forEach(i => i.classList.remove('drag-over'));
+    updateDNDPositions(wrap);
+  });
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   ANSWER SUBMISSION
+═══════════════════════════════════════════════════════════════ */
+function submitAnswer() {
+  if (session.submitted) return;
+  const q   = session.questions[session.idx];
+  const type = q.type || 'mc';
+  let isCorrect = false;
+  let yourAnsText = '';
+  let correctAnsText = '';
+
+  if (type === 'mc') {
+    const sel = document.querySelector('.mc-option.selected');
+    if (!sel) return;
+    const idx = parseInt(sel.dataset.idx);
+    isCorrect = idx === q.ans;
+    yourAnsText    = 'ABCD'[idx] + '. ' + (q.opts[idx] || '');
+    correctAnsText = 'ABCD'[q.ans] + '. ' + (q.opts[q.ans] || '');
+
+    document.querySelectorAll('.mc-option').forEach(b => {
+      b.classList.add('locked');
+      const i = parseInt(b.dataset.idx);
+      if (i === q.ans)  b.classList.add('correct');
+      if (i === idx && !isCorrect) b.classList.add('incorrect');
+    });
+
+  } else if (type === 'yn') {
+    const sel = document.querySelector('.yn-btn.selected');
+    if (!sel) return;
+    const idx = parseInt(sel.dataset.idx);
+    isCorrect = idx === q.ans;
+    yourAnsText    = idx === 0 ? 'Yes' : 'No';
+    correctAnsText = q.ans === 0 ? 'Yes' : 'No';
+
+    document.querySelectorAll('.yn-btn').forEach(b => {
+      b.classList.add('locked');
+      const i = parseInt(b.dataset.idx);
+      if (i === q.ans)  b.classList.add('correct');
+      if (i === idx && !isCorrect) b.classList.add('incorrect');
+    });
+
+  } else if (type === 'ms') {
+    const sel = [...document.querySelectorAll('.ms-option.selected')].map(b => parseInt(b.dataset.idx)).sort();
+    const ans = [...(Array.isArray(q.ans) ? q.ans : [q.ans])].sort();
+    isCorrect = JSON.stringify(sel) === JSON.stringify(ans);
+    yourAnsText    = sel.map(i => 'ABCD'[i] + '. ' + q.opts[i]).join('; ');
+    correctAnsText = ans.map(i => 'ABCD'[i] + '. ' + q.opts[i]).join('; ');
+
+    document.querySelectorAll('.ms-option').forEach(b => {
+      b.classList.add('locked');
+      const i = parseInt(b.dataset.idx);
+      if (ans.includes(i)) b.classList.add('correct');
+      else if (sel.includes(i)) b.classList.add('incorrect');
+    });
+
+  } else if (type === 'dnd') {
+    const items = [...document.querySelectorAll('#dnd-wrap .dnd-item')];
+    const userOrder = items.map(i => parseInt(i.dataset.orig));
+    const ans = Array.isArray(q.ans) ? q.ans : [];
+    isCorrect = JSON.stringify(userOrder) === JSON.stringify(ans);
+    yourAnsText    = userOrder.map(i => (i + 1) + '. ' + q.opts[i]).join(' → ');
+    correctAnsText = ans.map(i => q.opts[i]).join(' → ');
+
+    items.forEach(item => {
+      item.classList.add(isCorrect ? 'correct' : 'incorrect');
+      item.draggable = false;
+    });
+  }
+
+  session.submitted = true;
+
+  // Record result
+  session.answers.push({ correct: isCorrect, domain: q.domain, yourAns: yourAnsText, correctAns: correctAnsText });
+
+  // Update domain perf (live)
+  const dp = state.domainPerf[q.domain];
+  if (dp) { dp.total++; if (isCorrect) dp.correct++; }
+
+  // Wrong log
+  if (!isCorrect) {
+    const entry = {
+      id: Date.now() + '_' + session.idx,
+      q: q.q,
+      yourAns: yourAnsText,
+      correctAns: correctAnsText,
+      domain: q.domain,
+      exp: q.exp || '',
+      tip: q.tip || '',
+      mastered: false,
+      ts: Date.now(),
+    };
+    // Dedupe by question text
+    const dup = state.wrongLog.find(w => w.q === q.q);
+    if (!dup) state.wrongLog.push(entry);
+  }
+
+  // Question glow
+  el('q-card').classList.toggle('correct-glow', isCorrect);
+  el('q-card').classList.toggle('incorrect-glow', !isCorrect);
+
+  // Show explanation
+  showExplanation(q, isCorrect);
+
+  // Update buttons
+  el('submit-btn').classList.add('hidden');
+  el('next-btn').classList.remove('hidden');
+
+  const isLast = session.idx >= session.questions.length - 1;
+  el('next-btn').textContent = isLast ? 'Finish Session →' : 'Next →';
+
+  saveState();
+}
+
+function showExplanation(q, isCorrect) {
+  const panel = el('explanation-panel');
+  panel.classList.add('show');
+
+  const verdict = el('exp-verdict');
+  verdict.className = 'exp-verdict ' + (isCorrect ? 'correct' : 'incorrect');
+  verdict.textContent = isCorrect ? '✓ Correct' : '✗ Incorrect';
+
+  el('exp-body').textContent = q.exp || 'No explanation provided.';
+
+  const tipWrap = el('exp-tip-wrap');
+  if (q.tip) {
+    tipWrap.classList.remove('hidden');
+    el('exp-tip').textContent = q.tip;
+  } else {
+    tipWrap.classList.add('hidden');
+  }
+}
+
+function nextQuestion() {
+  const isLast = session.idx >= session.questions.length - 1;
+  if (isLast) {
+    finishSession();
+  } else {
+    session.idx++;
+    renderQuestion();
+  }
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   SESSION FINISH + SUMMARY MODAL
+═══════════════════════════════════════════════════════════════ */
+function finishSession() {
+  const answers = session.answers;
+  const correct = answers.filter(a => a.correct).length;
+  const total   = answers.length;
+
+  // Update global stats
+  state.sessions++;
+  state.totalQ       += total;
+  state.totalCorrect += correct;
+  updateStreak();
+
+  // Domain scores for this session
+  const domainScores = {};
+  DOMAIN_KEYS.forEach(k => { domainScores[k] = { correct: 0, total: 0 }; });
+  answers.forEach(a => {
+    const ds = domainScores[a.domain];
+    if (ds) { ds.total++; if (a.correct) ds.correct++; }
+  });
+
+  state.sessionHistory.unshift({
+    date: new Date().toLocaleDateString(),
+    correct, total,
+    domainScores,
+  });
+  if (state.sessionHistory.length > 20) state.sessionHistory.length = 20;
+
+  saveState();
+  renderStreak();
+
+  // Reset for next session
+  session.questions = [];
+  session.idx       = 0;
+  session.answers   = [];
+
+  // Show summary modal
+  showSessionModal(correct, total, domainScores);
+}
+
+function showSessionModal(correct, total, domainScores) {
+  el('summary-correct').textContent = correct;
+  el('summary-total').textContent   = '/ ' + total;
+
+  const circle = el('summary-circle');
+  const p = pct(correct, total);
+  circle.style.borderColor = pctColor(p);
+  circle.style.boxShadow   = '0 0 20px ' + pctColor(p) + '55';
+
+  el('summary-msg').textContent = scoreMsg(correct, total);
+
+  // Domain breakdown
+  const breakdown = el('summary-domain-breakdown');
+  breakdown.innerHTML = '';
+  DOMAIN_KEYS.forEach(key => {
+    const ds = domainScores[key];
+    if (!ds || ds.total === 0) return;
+    const p   = pct(ds.correct, ds.total);
+    const col = pctColor(p);
+    buildDomainRow(breakdown, key, p, col, ds.correct + '/' + ds.total);
+  });
+
+  // Weak domain callout
+  const weakPanel = el('summary-weak-panel');
+  const weakKey   = findWeakestDomain();
+  if (weakKey) {
+    weakPanel.style.display = '';
+    el('summary-weak-msg').textContent = 'Your weakest domain is ' + domainName(weakKey) + '. Next session will weight it higher.';
+  } else {
+    weakPanel.style.display = 'none';
+  }
+
+  el('session-modal').classList.add('open');
+}
+
+function findWeakestDomain() {
+  let weakKey = null, weakVal = 101;
+  DOMAIN_KEYS.forEach(key => {
+    const d = state.domainPerf[key];
+    const p = pct(d.correct, d.total);
+    const v = p !== null ? p : d.baseline;
+    if (v < weakVal) { weakVal = v; weakKey = key; }
+  });
+  return weakVal < 75 ? weakKey : null;
+}
+
+function buildDomainRow(parent, key, p, col, label) {
+  const row = document.createElement('div');
+  row.className = 'domain-acc-row';
+
+  const top = document.createElement('div');
+  top.className = 'dr-top';
+
+  const name = document.createElement('span');
+  name.className = 'dr-name';
+  name.textContent = domainName(key);
+
+  const pctEl = document.createElement('span');
+  pctEl.className = 'dr-pct';
+  pctEl.style.color = col;
+  pctEl.textContent = (p !== null ? p + '%' : '—') + (label ? ' (' + label + ')' : '');
+
+  top.appendChild(name);
+  top.appendChild(pctEl);
+
+  const bar = document.createElement('div');
+  bar.className = 'dr-bar';
+  const fill = document.createElement('div');
+  fill.className = 'dr-fill';
+  fill.style.width = (p || 0) + '%';
+  fill.style.background = col;
+  bar.appendChild(fill);
+
+  row.appendChild(top);
+  row.appendChild(bar);
+  parent.appendChild(row);
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   BOOKMARKS
+═══════════════════════════════════════════════════════════════ */
+function toggleBookmark() {
+  const q = session.questions[session.idx];
+  if (!q) return;
+  const id = q.q.slice(0, 80);
+  const i  = state.bookmarks.indexOf(id);
+  if (i > -1) {
+    state.bookmarks.splice(i, 1);
+    toast('Bookmark removed', 'info');
+  } else {
+    state.bookmarks.push(id);
+    toast('Bookmarked!', 'success');
+  }
+  saveState();
+  updateBookmarkBtn(q);
+}
+
+function updateBookmarkBtn(q) {
+  if (!q) return;
+  const id = q.q.slice(0, 80);
+  const btn = el('bookmark-btn');
+  const marked = state.bookmarks.includes(id);
+  btn.textContent = marked ? '★' : '☆';
+  btn.classList.toggle('bookmarked', marked);
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   WRONG ANSWERS LOG
+═══════════════════════════════════════════════════════════════ */
+function renderWrongLog() {
+  const domFilter    = el('wrong-filter-domain').value;
+  const statusFilter = el('wrong-filter-status').value;
+
+  let items = state.wrongLog.filter(w => {
+    if (domFilter !== 'all' && w.domain !== domFilter) return false;
+    if (statusFilter === 'active'   && w.mastered) return false;
+    if (statusFilter === 'mastered' && !w.mastered) return false;
+    return true;
+  });
+
+  const list = el('wrong-log-list');
+  list.innerHTML = '';
+
+  if (items.length === 0) {
+    el('wrong-empty').classList.remove('hidden');
+    return;
+  }
+  el('wrong-empty').classList.add('hidden');
+
+  items.slice().reverse().forEach(w => {
+    const div = document.createElement('div');
+    div.className = 'wrong-item' + (w.mastered ? ' mastered' : '');
+    div.dataset.id = w.id;
+
+    const qDiv = document.createElement('div');
+    qDiv.className = 'wi-q';
+    qDiv.textContent = w.q;
+
+    const answers = document.createElement('div');
+    answers.className = 'wi-answers';
+
+    const yours = document.createElement('div');
+    yours.className = 'wi-ans wi-yours';
+    yours.textContent = '✗ You: ' + w.yourAns;
+
+    const correct = document.createElement('div');
+    correct.className = 'wi-ans wi-correct';
+    correct.textContent = '✓ Correct: ' + w.correctAns;
+
+    answers.appendChild(yours);
+    answers.appendChild(correct);
+
+    const footer = document.createElement('div');
+    footer.className = 'wi-footer';
+
+    const badge = document.createElement('span');
+    badge.className = 'badge ' + domainBadge(w.domain);
+    badge.textContent = domainName(w.domain);
+
+    const masterBtn = document.createElement('button');
+    masterBtn.className = 'btn btn-sm ' + (w.mastered ? 'btn-ghost' : 'btn-success');
+    masterBtn.textContent = w.mastered ? '↩ Unmaster' : '✓ Mark Mastered';
+    masterBtn.addEventListener('click', () => {
+      w.mastered = !w.mastered;
+      saveState();
+      renderWrongLog();
+    });
+
+    const removeBtn = document.createElement('button');
+    removeBtn.className = 'btn btn-sm btn-danger';
+    removeBtn.textContent = '✕';
+    removeBtn.title = 'Remove from log';
+    removeBtn.addEventListener('click', () => {
+      state.wrongLog = state.wrongLog.filter(x => x.id !== w.id);
+      saveState();
+      renderWrongLog();
+    });
+
+    footer.appendChild(badge);
+    footer.appendChild(masterBtn);
+    footer.appendChild(removeBtn);
+
+    div.appendChild(qDiv);
+    div.appendChild(answers);
+    if (w.exp) {
+      const expDiv = document.createElement('div');
+      expDiv.className = 'small txt3 mt-8';
+      expDiv.style.fontStyle = 'italic';
+      expDiv.textContent = w.exp;
+      div.appendChild(expDiv);
+    }
+    div.appendChild(footer);
+    list.appendChild(div);
+  });
+}
+
+function exportWrongAnswers() {
+  const active = state.wrongLog.filter(w => !w.mastered);
+  if (active.length === 0) { toast('No active wrong answers to export.', 'info'); return; }
+
+  const lines = active.map((w, i) =>
+    (i + 1) + '. [' + domainName(w.domain) + ']\n' +
+    'Q: ' + w.q + '\n' +
+    'Your answer: ' + w.yourAns + '\n' +
+    'Correct: ' + w.correctAns + '\n' +
+    (w.tip ? 'Tip: ' + w.tip : '')
+  ).join('\n\n');
+
+  navigator.clipboard.writeText(lines)
+    .then(() => toast('Copied ' + active.length + ' questions to clipboard!', 'success'))
+    .catch(() => toast('Clipboard access denied.', 'error'));
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   PROGRESS SECTION
+═══════════════════════════════════════════════════════════════ */
+function renderProgress() {
+  // Domain accuracy bars
+  const list = el('domain-acc-list');
+  list.innerHTML = '';
+  DOMAIN_KEYS.forEach(key => {
+    const d   = state.domainPerf[key];
+    const p   = pct(d.correct, d.total);
+    const val = p !== null ? p : d.baseline;
+    const col = pctColor(val);
+    const lbl = p !== null ? d.correct + '/' + d.total + ' questions' : 'No data (baseline ' + d.baseline + '%)';
+    buildDomainRow(list, key, val, col, lbl);
+  });
+
+  // Session history
+  const histList = el('session-history-list');
+  histList.innerHTML = '';
+  if (state.sessionHistory.length === 0) {
+    el('session-hist-empty').classList.remove('hidden');
+  } else {
+    el('session-hist-empty').classList.add('hidden');
+    state.sessionHistory.forEach(s => {
+      const p   = pct(s.correct, s.total);
+      const col = pctColor(p);
+      const item = document.createElement('div');
+      item.className = 'session-hist-item';
+
+      const date = document.createElement('span');
+      date.className = 'sh-date';
+      date.textContent = s.date;
+
+      const score = document.createElement('span');
+      score.className = 'sh-score';
+      score.style.color = col;
+      score.textContent = s.correct + '/' + s.total;
+
+      const detail = document.createElement('span');
+      detail.className = 'sh-detail';
+      detail.textContent = (p !== null ? p + '%' : '');
+
+      item.appendChild(date);
+      item.appendChild(score);
+      item.appendChild(detail);
+      histList.appendChild(item);
+    });
+  }
+
+  // Weak domain panel
+  const weakKey = findWeakestDomain();
+  const weakPanel = el('weak-domain-panel');
+  if (weakKey) {
+    weakPanel.style.display = '';
+    el('weak-domain-msg').textContent = domainName(weakKey) + ' is your weakest area. Click "Drill It" for a focused session.';
+    el('drill-weak-btn').dataset.weak = weakKey;
+  } else {
+    weakPanel.style.display = 'none';
+  }
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   EXAM SIMULATION
+═══════════════════════════════════════════════════════════════ */
+let simState = {
+  questions: [],
+  answers:   {},   // idx → {ans, correct}
+  idx: 0,
+  timerInterval: null,
+  secondsLeft: 0,
+  running: false,
+};
+
+async function startSim() {
+  const count  = parseInt(el('sim-q-count').value) || 40;
+  const topics = pickTopics('adaptive', count);
+
+  el('start-sim-btn').disabled = true;
+  el('start-sim-btn').textContent = 'Generating...';
+
+  try {
+    const questions = await fetchQuestions(topics);
+    simState.questions = questions;
+    simState.answers   = {};
+    simState.idx       = 0;
+    simState.secondsLeft = count * Math.round(130 * 60 / 40); // proportional to 130 min for 40 q
+
+    el('sim-setup').classList.add('hidden');
+    el('sim-results').classList.add('hidden');
+    el('sim-active').classList.remove('hidden');
+
+    simState.running = true;
+    startSimTimer();
+    renderSimQuestion();
+  } catch (err) {
+    toast(err.message || 'Failed to start simulation.', 'error', 4000);
+  } finally {
+    el('start-sim-btn').disabled = false;
+    el('start-sim-btn').textContent = '▶ Begin Simulation';
+  }
+}
+
+function startSimTimer() {
+  clearInterval(simState.timerInterval);
+  updateTimerDisplay();
+  simState.timerInterval = setInterval(() => {
+    if (!simState.running) return;
+    simState.secondsLeft--;
+    updateTimerDisplay();
+    if (simState.secondsLeft <= 0) endSim();
+  }, 1000);
+}
+
+function updateTimerDisplay() {
+  const m = Math.floor(simState.secondsLeft / 60);
+  const s = simState.secondsLeft % 60;
+  const disp = m + ':' + String(s).padStart(2, '0');
+  const timerEl = el('sim-timer');
+  timerEl.textContent = disp;
+  timerEl.classList.toggle('urgent', simState.secondsLeft < 300);
+}
+
+function renderSimQuestion() {
+  const q   = simState.questions[simState.idx];
+  const idx = simState.idx;
+  const tot = simState.questions.length;
+
+  el('sim-progress-label').textContent = 'Question ' + (idx + 1) + ' of ' + tot;
+
+  const metaEl = el('sim-q-meta');
+  metaEl.innerHTML = '';
+  const badge = document.createElement('span');
+  badge.className = 'badge ' + domainBadge(q.domain);
+  badge.textContent = domainName(q.domain);
+  metaEl.appendChild(badge);
+
+  el('sim-q-text').textContent = q.q;
+
+  const area = el('sim-answer-area');
+  area.innerHTML = '';
+
+  // Render same types but no locking/explanation in sim
+  if (q.type === 'yn') renderYNSim(area, q, idx);
+  else if (q.type === 'ms') renderMSSim(area, q, idx);
+  else renderMCSim(area, q, idx);
+
+  el('sim-prev-btn').disabled = idx === 0;
+  el('sim-next-btn').classList.toggle('hidden', idx === tot - 1);
+  el('sim-submit-btn').classList.toggle('hidden', idx !== tot - 1);
+}
+
+function simSelectMC(qIdx, ansIdx) {
+  simState.answers[qIdx] = { selectedIdx: ansIdx };
+}
+
+function simSelectYN(qIdx, ansIdx) {
+  simState.answers[qIdx] = { selectedIdx: ansIdx };
+}
+
+function simSelectMS(qIdx, selArr) {
+  simState.answers[qIdx] = { selected: selArr };
+}
+
+function renderMCSim(area, q, qIdx) {
+  const opts = q.opts || [];
+  const prev = simState.answers[qIdx];
+  const wrap = document.createElement('div');
+  wrap.className = 'mc-options';
+
+  opts.forEach((text, i) => {
+    const btn = document.createElement('button');
+    btn.className = 'mc-option' + (prev && prev.selectedIdx === i ? ' selected' : '');
+    btn.dataset.idx = i;
+
+    const key = document.createElement('span');
+    key.className = 'opt-key';
+    key.textContent = 'ABCD'[i];
+
+    const txt = document.createElement('span');
+    txt.className = 'opt-text';
+    txt.textContent = text;
+
+    btn.appendChild(key);
+    btn.appendChild(txt);
+    btn.addEventListener('click', () => {
+      wrap.querySelectorAll('.mc-option').forEach(b => b.classList.remove('selected'));
+      btn.classList.add('selected');
+      simSelectMC(qIdx, i);
+    });
+    wrap.appendChild(btn);
+  });
+
+  area.appendChild(wrap);
+}
+
+function renderYNSim(area, q, qIdx) {
+  const prev = simState.answers[qIdx];
+  const wrap = document.createElement('div');
+  wrap.className = 'yn-options';
+
+  ['Yes', 'No'].forEach((label, i) => {
+    const btn = document.createElement('button');
+    btn.className = 'yn-btn' + (prev && prev.selectedIdx === i ? ' selected' : '');
+    btn.dataset.idx = i;
+    btn.textContent = label;
+    btn.addEventListener('click', () => {
+      wrap.querySelectorAll('.yn-btn').forEach(b => b.classList.remove('selected'));
+      btn.classList.add('selected');
+      simSelectYN(qIdx, i);
+    });
+    wrap.appendChild(btn);
+  });
+  area.appendChild(wrap);
+}
+
+function renderMSSim(area, q, qIdx) {
+  const pickCount = q.pick || 2;
+  const prev = simState.answers[qIdx];
+  const prevSel = prev ? (prev.selected || []) : [];
+
+  const hint = document.createElement('div');
+  hint.className = 'ms-hint';
+  hint.textContent = 'Select ' + pickCount + '.';
+  area.appendChild(hint);
+
+  const wrap = document.createElement('div');
+  wrap.className = 'ms-options';
+
+  (q.opts || []).forEach((text, i) => {
+    const btn = document.createElement('button');
+    const isSel = prevSel.includes(i);
+    btn.className = 'ms-option' + (isSel ? ' selected' : '');
+    btn.dataset.idx = i;
+
+    const chk = document.createElement('span');
+    chk.className = 'ms-check';
+    if (isSel) chk.textContent = '✓';
+
+    const txt = document.createElement('span');
+    txt.className = 'opt-text';
+    txt.textContent = text;
+
+    btn.appendChild(chk);
+    btn.appendChild(txt);
+    btn.addEventListener('click', () => {
+      const curSel = [...wrap.querySelectorAll('.ms-option.selected')].map(b => parseInt(b.dataset.idx));
+      if (btn.classList.contains('selected')) {
+        btn.classList.remove('selected'); chk.textContent = '';
+      } else if (curSel.length < pickCount) {
+        btn.classList.add('selected'); chk.textContent = '✓';
+      }
+      const newSel = [...wrap.querySelectorAll('.ms-option.selected')].map(b => parseInt(b.dataset.idx));
+      simSelectMS(qIdx, newSel);
+    });
+    wrap.appendChild(btn);
+  });
+  area.appendChild(wrap);
+}
+
+function endSim() {
+  clearInterval(simState.timerInterval);
+  simState.running = false;
+
+  // Score
+  let correct = 0;
+  simState.questions.forEach((q, i) => {
+    const a = simState.answers[i];
+    if (!a) return;
+    const type = q.type || 'mc';
+    let isCorrect = false;
+
+    if (type === 'mc' || type === 'yn') {
+      isCorrect = a.selectedIdx === q.ans;
+    } else if (type === 'ms') {
+      const sel = [...(a.selected || [])].sort();
+      const ans = [...(Array.isArray(q.ans) ? q.ans : [])].sort();
+      isCorrect = JSON.stringify(sel) === JSON.stringify(ans);
+    }
+    if (isCorrect) correct++;
+
+    // Update domain perf
+    const dp = state.domainPerf[q.domain];
+    if (dp) { dp.total++; if (isCorrect) dp.correct++; }
+    if (!isCorrect && a.selectedIdx !== undefined) {
+      const yourAns = type === 'yn'
+        ? (a.selectedIdx === 0 ? 'Yes' : 'No')
+        : ('ABCD'[a.selectedIdx] + '. ' + (q.opts[a.selectedIdx] || ''));
+      const correctAns = type === 'yn'
+        ? (q.ans === 0 ? 'Yes' : 'No')
+        : ('ABCD'[q.ans] + '. ' + (q.opts[q.ans] || ''));
+      const dup = state.wrongLog.find(w => w.q === q.q);
+      if (!dup) {
+        state.wrongLog.push({
+          id: 'sim_' + Date.now() + '_' + i,
+          q: q.q, yourAns, correctAns,
+          domain: q.domain, exp: q.exp || '', tip: q.tip || '',
+          mastered: false, ts: Date.now(),
+        });
+      }
+    }
+  });
+
+  state.totalQ       += simState.questions.length;
+  state.totalCorrect += correct;
+  state.sessions++;
+  updateStreak();
+  saveState();
+  renderStreak();
+
+  el('sim-active').classList.add('hidden');
+
+  const total = simState.questions.length;
+  const p = pct(correct, total);
+  const scaledScore = Math.round((p / 100) * 900 + 100);
+  const pass = scaledScore >= PASS_SCORE;
+
+  el('sim-score-pct').textContent = p + '%';
+  el('sim-score-frac').textContent = correct + ' / ' + total;
+  const circle = el('sim-score-circle');
+  circle.style.borderColor = pass ? 'var(--green)' : 'var(--red)';
+  el('sim-score-msg').textContent = (pass ? '✓ PASS' : '✗ FAIL') + ' — Scaled score ≈ ' + scaledScore + '/1000 (passing: ' + PASS_SCORE + ')';
+
+  const breakdown = el('sim-domain-breakdown');
+  breakdown.innerHTML = '';
+  const domainTotals = {};
+  simState.questions.forEach((q, i) => {
+    const a = simState.answers[i];
+    if (!domainTotals[q.domain]) domainTotals[q.domain] = { correct: 0, total: 0 };
+    domainTotals[q.domain].total++;
+    if (a && (a.selectedIdx === q.ans || (Array.isArray(q.ans) && JSON.stringify([...(a.selected||[])].sort()) === JSON.stringify([...q.ans].sort())))) {
+      domainTotals[q.domain].correct++;
+    }
+  });
+  DOMAIN_KEYS.forEach(key => {
+    const d = domainTotals[key];
+    if (!d) return;
+    const p = pct(d.correct, d.total);
+    buildDomainRow(breakdown, key, p, pctColor(p), d.correct + '/' + d.total);
+  });
+
+  el('sim-results').classList.remove('hidden');
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   KEYBOARD SHORTCUTS
+═══════════════════════════════════════════════════════════════ */
+function handleKey(e) {
+  const tag = document.activeElement.tagName;
+  if (tag === 'INPUT' || tag === 'SELECT' || tag === 'TEXTAREA') return;
+
+  // Modal close
+  if (e.key === 'Escape') {
+    el('shortcuts-overlay').classList.remove('open');
+    el('session-modal').classList.remove('open');
+    return;
+  }
+
+  // Shortcut overlay
+  if (e.key === '?') {
+    e.preventDefault();
+    el('shortcuts-overlay').classList.toggle('open');
+    return;
+  }
+
+  // Nav 1-7
+  if (e.key >= '1' && e.key <= '7') {
+    const idx = parseInt(e.key) - 1;
+    if (NAV_SECTIONS[idx]) showSection(NAV_SECTIONS[idx]);
+    return;
+  }
+
+  // Practice shortcuts
+  const practiceActive = el('practice').classList.contains('active');
+  if (!practiceActive || !el('q-ui') || el('q-ui').classList.contains('hidden')) return;
+
+  const q = session.questions[session.idx];
+  if (!q) return;
+
+  const type = q.type || 'mc';
+
+  // MC letter keys
+  if (!session.submitted && type === 'mc') {
+    const keyMap = { a: 0, b: 1, c: 2, d: 3 };
+    const idx = keyMap[e.key.toLowerCase()];
+    if (idx !== undefined) {
+      const opts = document.querySelectorAll('.mc-option');
+      if (opts[idx]) {
+        opts.forEach(o => o.classList.remove('selected'));
+        opts[idx].classList.add('selected');
+        el('submit-btn').disabled = false;
+      }
+      return;
+    }
+  }
+
+  // YN keys
+  if (!session.submitted && type === 'yn') {
+    if (e.key.toLowerCase() === 'y') {
+      const btns = document.querySelectorAll('.yn-btn');
+      btns.forEach(b => b.classList.remove('selected'));
+      btns[0] && btns[0].classList.add('selected');
+      el('submit-btn').disabled = false;
+    } else if (e.key.toLowerCase() === 'n') {
+      const btns = document.querySelectorAll('.yn-btn');
+      btns.forEach(b => b.classList.remove('selected'));
+      btns[1] && btns[1].classList.add('selected');
+      el('submit-btn').disabled = false;
+    }
+    return;
+  }
+
+  // Bookmark
+  if (e.key.toLowerCase() === 'b' && session.submitted) {
+    toggleBookmark();
+    return;
+  }
+
+  // Submit / next
+  if (e.key === ' ' || e.key === 'Enter') {
+    e.preventDefault();
+    if (!session.submitted && !el('submit-btn').disabled) {
+      submitAnswer();
+    } else if (session.submitted) {
+      nextQuestion();
+    }
+    return;
+  }
+
+  // Arrow right → next
+  if (e.key === 'ArrowRight' && session.submitted) {
+    nextQuestion();
+  }
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   EVENT WIRING
+═══════════════════════════════════════════════════════════════ */
+function wireEvents() {
+  // Nav buttons
+  document.querySelectorAll('.nav-btn[data-section]').forEach(btn => {
+    btn.addEventListener('click', () => showSection(btn.dataset.section));
+  });
+
+  // Buttons with data-section (non-nav)
+  document.querySelectorAll('button[data-section]').forEach(btn => {
+    if (!btn.classList.contains('nav-btn')) {
+      btn.addEventListener('click', () => showSection(btn.dataset.section));
+    }
+  });
+
+  // Home start
+  el('home-start-btn').addEventListener('click', () => {
+    showSection('practice');
+    if (session.questions.length === 0) showStartPanel();
+  });
+
+  // Session start
+  el('start-session-btn').addEventListener('click', startSession);
+
+  // Submit + next
+  el('submit-btn').addEventListener('click', submitAnswer);
+  el('next-btn').addEventListener('click', nextQuestion);
+
+  // Bookmark
+  el('bookmark-btn').addEventListener('click', toggleBookmark);
+
+  // Wrong log filters
+  el('wrong-filter-domain').addEventListener('change', renderWrongLog);
+  el('wrong-filter-status').addEventListener('change', renderWrongLog);
+  el('export-wrong-btn').addEventListener('click', exportWrongAnswers);
+  el('clear-wrong-btn').addEventListener('click', () => {
+    if (!confirm('Clear all wrong answers? This cannot be undone.')) return;
+    state.wrongLog = [];
+    saveState();
+    renderWrongLog();
+    toast('Wrong answers cleared.', 'info');
+  });
+
+  // Session modal
+  el('session-modal-close').addEventListener('click', () => el('session-modal').classList.remove('open'));
+  el('summary-close-btn').addEventListener('click', () => el('session-modal').classList.remove('open'));
+  el('summary-new-session-btn').addEventListener('click', () => {
+    el('session-modal').classList.remove('open');
+    showSection('practice');
+    showStartPanel();
+  });
+  el('summary-review-btn').addEventListener('click', () => {
+    el('session-modal').classList.remove('open');
+    showSection('review');
+  });
+
+  // Shortcuts overlay
+  el('shortcut-hint-btn').addEventListener('click', () => el('shortcuts-overlay').classList.toggle('open'));
+  el('shortcuts-close').addEventListener('click', () => el('shortcuts-overlay').classList.remove('open'));
+  el('shortcuts-overlay').addEventListener('click', e => {
+    if (e.target === el('shortcuts-overlay')) el('shortcuts-overlay').classList.remove('open');
+  });
+  el('session-modal').addEventListener('click', e => {
+    if (e.target === el('session-modal')) el('session-modal').classList.remove('open');
+  });
+
+  // Progress reset
+  el('reset-progress-btn').addEventListener('click', () => {
+    if (!confirm('Reset ALL progress? This deletes your stats, wrong answers, and session history.')) return;
+    state = defaultState();
+    saveState();
+    renderProgress();
+    renderHome();
+    renderStreak();
+    toast('Progress reset.', 'info');
+  });
+
+  // Drill weak
+  el('drill-weak-btn').addEventListener('click', () => {
+    const key = el('drill-weak-btn').dataset.weak;
+    if (key) {
+      el('domain-focus-select').value = key;
+      showSection('practice');
+      showStartPanel();
+    }
+  });
+
+  // Exam sim
+  el('start-sim-btn').addEventListener('click', startSim);
+  el('end-sim-btn').addEventListener('click', () => {
+    if (!confirm('End simulation and see your score?')) return;
+    endSim();
+  });
+  el('sim-submit-btn').addEventListener('click', () => {
+    if (!confirm('Submit exam and see your score?')) return;
+    endSim();
+  });
+  el('sim-prev-btn').addEventListener('click', () => {
+    if (simState.idx > 0) { simState.idx--; renderSimQuestion(); }
+  });
+  el('sim-next-btn').addEventListener('click', () => {
+    if (simState.idx < simState.questions.length - 1) { simState.idx++; renderSimQuestion(); }
+  });
+  el('sim-retry-btn').addEventListener('click', () => {
+    el('sim-results').classList.add('hidden');
+    el('sim-setup').classList.remove('hidden');
+  });
+
+  // Keyboard
+  document.addEventListener('keydown', handleKey);
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   INIT
+═══════════════════════════════════════════════════════════════ */
+function init() {
+  wireEvents();
+  renderStreak();
+  renderHome();
+}
+
+document.addEventListener('DOMContentLoaded', init);
+</script>
+</body>
+</html>
