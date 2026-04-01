@@ -2078,7 +2078,7 @@ const DOMAINS = {
       'External identities and B2B guests',
       'RBAC role assignments and scope inheritance',
       'Custom RBAC role definitions',
-      'Azure AD Privileged Identity Management',
+      'Microsoft Entra Privileged Identity Management (PIM)',
       'Conditional Access policies and named locations',
       'Multi-factor authentication configuration',
       'Self-service password reset',
@@ -2170,7 +2170,7 @@ const DOMAINS = {
     badge: 'badge-monitoring',
     topics: [
       'Azure Monitor metrics and metric alerts',
-      'Log Analytics workspaces and agents',
+      'Log Analytics workspaces and Azure Monitor Agent (AMA)',
       'KQL query basics for Log Analytics',
       'Diagnostic settings: destinations and categories',
       'Azure Monitor action groups and alert rules',
@@ -2522,12 +2522,27 @@ async function fetchQuestions(topicList) {
     '- For MC and MS questions, exp MUST explain each option individually using the format: "A: [reason]. B: [reason]. C: [reason]. D: [reason]." Mark the correct answer clearly.\n' +
     '- Keep difficulty at the AZ-104 associate level — not entry-level, not expert/architect level.\n' +
     '- Exp and tip must be plain text, no markdown.\n' +
+    '- Use only current Azure service names. Never use deprecated names: Azure AD, Azure Security Center, MMA, OMS Agent, Azure Sentinel, Classic VMs.\n' +
     'Return ONLY the JSON array.';
 
   const sysPrompt = 'You are a Microsoft AZ-104 certified exam question writer. Generate ONLY questions that test skills explicitly listed in the official AZ-104 exam objectives (Manage Azure identities and governance, Implement and manage storage, Deploy and manage Azure compute resources, Implement and manage virtual networking, Monitor and maintain Azure resources). ' +
     'DO NOT generate questions about: advanced Kubernetes internals, ARM template syntax deep-dives, obscure service limits not commonly tested, services outside the AZ-104 scope (e.g. Azure Synapse, Purview, DevOps pipelines), or topics a junior Azure Admin would never encounter. ' +
-    'ACCURACY RULES: Every fact, limit, and behavior must be correct. If uncertain about a specific number, do not make it the crux of a question. ' +
-    'Questions must test what an Azure Administrator DOES in their day-to-day work — portal/CLI actions, configuration decisions, troubleshooting steps. ' +
+    'CURRENT NAMING — always use these names, never the old ones: ' +
+    '"Microsoft Entra ID" (not Azure AD or Azure Active Directory), ' +
+    '"Microsoft Entra Privileged Identity Management" (not Azure AD PIM), ' +
+    '"Microsoft Defender for Cloud" (not Azure Security Center or Azure Defender), ' +
+    '"Azure Monitor Agent" or "AMA" (not Log Analytics Agent, MMA, or OMS Agent), ' +
+    '"Microsoft Sentinel" (not Azure Sentinel), ' +
+    '"Azure Virtual Network Manager" where applicable. ' +
+    'DEPRECATED — never test or mention: ' +
+    'Classic deployment model (ASM), Classic VMs, Classic VNets, Classic Storage accounts, ' +
+    'Operations Management Suite (OMS), Microsoft Monitoring Agent (MMA), Log Analytics Agent, ' +
+    'ADAL (Azure AD Authentication Library — use MSAL), ' +
+    'Azure Container Service (replaced by AKS), ' +
+    'Azure AD Graph API (replaced by Microsoft Graph), ' +
+    'Azure Service Manager (ASM) portal. ' +
+    'ACCURACY RULES: Every fact, limit, and behavior must be correct as of 2024–2025. If uncertain about a specific number, do not make it the crux of a question. ' +
+    'Questions must test what an Azure Administrator DOES in their day-to-day work — portal/CLI/PowerShell actions, configuration decisions, troubleshooting steps. ' +
     'Wrong answer options must be definitively incorrect. The correct answer must be unambiguously right. ' +
     'Return ONLY valid JSON — no markdown code fences, no prose.';
 
