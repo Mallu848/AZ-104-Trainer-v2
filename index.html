@@ -3461,6 +3461,7 @@ function renderSimQuestion() {
   // Render same types but no locking/explanation in sim
   if (q.type === 'yn') renderYNSim(area, q, idx);
   else if (q.type === 'ms') renderMSSim(area, q, idx);
+  else if (q.type === 'dnd') renderDNDSim(area, q, idx);
   else renderMCSim(area, q, idx);
 
   el('sim-prev-btn').disabled = idx === 0;
@@ -3576,6 +3577,124 @@ function renderMSSim(area, q, qIdx) {
   area.appendChild(wrap);
 }
 
+function renderDNDSim(area, q, qIdx) {
+  const opts = q.opts || [];
+
+  const hint = document.createElement('div');
+  hint.className = 'dnd-hint';
+  hint.textContent = 'Drag to arrange in the correct order.';
+  area.appendChild(hint);
+
+  const wrap = document.createElement('div');
+  wrap.className = 'dnd-container';
+
+  const prev = simState.answers[qIdx];
+  const order = (prev && prev.order) ? prev.order : [...opts.keys()].sort(() => Math.random() - 0.5);
+
+  order.forEach((origIdx, pos) => {
+    const item = document.createElement('div');
+    item.className = 'dnd-item';
+    item.draggable = true;
+    item.dataset.orig = origIdx;
+
+    const handle = document.createElement('span');
+    handle.className = 'dnd-handle';
+    handle.textContent = '⠿';
+    handle.setAttribute('aria-hidden', 'true');
+
+    const posEl = document.createElement('span');
+    posEl.className = 'dnd-pos';
+    posEl.textContent = pos + 1;
+
+    const txt = document.createElement('span');
+    txt.className = 'opt-text';
+    txt.textContent = opts[origIdx];
+
+    item.appendChild(handle);
+    item.appendChild(posEl);
+    item.appendChild(txt);
+    wrap.appendChild(item);
+  });
+
+  area.appendChild(wrap);
+
+  function saveOrder() {
+    const items = [...wrap.querySelectorAll('.dnd-item')];
+    simState.answers[qIdx] = { order: items.map(it => parseInt(it.dataset.orig)) };
+  }
+
+  initDNDSim(wrap, saveOrder);
+}
+
+function initDNDSim(wrap, onChange) {
+  let dragging = null;
+
+  wrap.addEventListener('dragstart', e => {
+    dragging = e.target.closest('.dnd-item');
+    if (!dragging) return;
+    dragging.classList.add('dragging');
+    e.dataTransfer.effectAllowed = 'move';
+  });
+
+  wrap.addEventListener('dragend', () => {
+    if (dragging) { dragging.classList.remove('dragging'); dragging = null; }
+    wrap.querySelectorAll('.dnd-item').forEach(i => i.classList.remove('drag-over'));
+    updateDNDPositions(wrap);
+    onChange();
+  });
+
+  wrap.addEventListener('dragover', e => {
+    e.preventDefault();
+    e.dataTransfer.dropEffect = 'move';
+    const target = e.target.closest('.dnd-item');
+    if (!target || target === dragging) return;
+    wrap.querySelectorAll('.dnd-item').forEach(i => i.classList.remove('drag-over'));
+    target.classList.add('drag-over');
+    const rect = target.getBoundingClientRect();
+    wrap.insertBefore(dragging, e.clientY > rect.top + rect.height / 2 ? target.nextSibling : target);
+  });
+
+  wrap.addEventListener('drop', e => { e.preventDefault(); });
+
+  let touchItem = null, touchClone = null;
+
+  wrap.addEventListener('touchstart', e => {
+    touchItem = e.target.closest('.dnd-item');
+    if (!touchItem) return;
+    touchItem.classList.add('dragging');
+    touchClone = touchItem.cloneNode(true);
+    touchClone.style.cssText = 'position:fixed;pointer-events:none;opacity:0.85;z-index:999;width:' + touchItem.offsetWidth + 'px;left:' + touchItem.getBoundingClientRect().left + 'px;top:' + touchItem.getBoundingClientRect().top + 'px;';
+    document.body.appendChild(touchClone);
+  }, { passive: true });
+
+  wrap.addEventListener('touchmove', e => {
+    if (!touchItem || !touchClone) return;
+    e.preventDefault();
+    const touch = e.touches[0];
+    touchClone.style.top = (touch.clientY - 24) + 'px';
+    const els = [...wrap.querySelectorAll('.dnd-item:not(.dragging)')];
+    wrap.querySelectorAll('.dnd-item').forEach(i => i.classList.remove('drag-over'));
+    let closest = null, closestDist = Infinity;
+    els.forEach(item => {
+      const dist = Math.abs(item.getBoundingClientRect().top + item.getBoundingClientRect().height / 2 - touch.clientY);
+      if (dist < closestDist) { closestDist = dist; closest = item; }
+    });
+    if (closest) {
+      closest.classList.add('drag-over');
+      const rect = closest.getBoundingClientRect();
+      wrap.insertBefore(touchItem, touch.clientY > rect.top + rect.height / 2 ? closest.nextSibling : closest);
+    }
+  }, { passive: false });
+
+  wrap.addEventListener('touchend', () => {
+    if (touchItem) { touchItem.classList.remove('dragging'); touchItem = null; }
+    if (touchClone) { touchClone.remove(); touchClone = null; }
+    wrap.querySelectorAll('.dnd-item').forEach(i => i.classList.remove('drag-over'));
+    updateDNDPositions(wrap);
+    onChange();
+  });
+}
+
 function endSim() {
   clearInterval(simState.timerInterval);
   simState.running = false;
@@ -3594,19 +3713,30 @@ function endSim() {
       const sel = [...(a.selected || [])].sort();
       const ans = [...(Array.isArray(q.ans) ? q.ans : [])].sort();
       isCorrect = JSON.stringify(sel) === JSON.stringify(ans);
+    } else if (type === 'dnd') {
+      isCorrect = JSON.stringify(a.order || []) === JSON.stringify(q.ans || []);
     }
     if (isCorrect) correct++;
 
     // Update domain perf
     const dp = state.domainPerf[q.domain];
     if (dp) { dp.total++; if (isCorrect) dp.correct++; }
-    if (!isCorrect && a.selectedIdx !== undefined) {
-      const yourAns = type === 'yn'
-        ? (a.selectedIdx === 0 ? 'Yes' : 'No')
-        : ('ABCD'[a.selectedIdx] + '. ' + (q.opts[a.selectedIdx] || ''));
-      const correctAns = type === 'yn'
-        ? (q.ans === 0 ? 'Yes' : 'No')
-        : ('ABCD'[q.ans] + '. ' + (q.opts[q.ans] || ''));
+    if (!isCorrect) {
+      let yourAns, correctAns;
+      if (type === 'yn') {
+        yourAns   = a.selectedIdx === 0 ? 'Yes' : 'No';
+        correctAns = q.ans === 0 ? 'Yes' : 'No';
+      } else if (type === 'ms') {
+        yourAns   = (a.selected || []).map(i => 'ABCD'[i]).join(', ');
+        correctAns = (Array.isArray(q.ans) ? q.ans : []).map(i => 'ABCD'[i]).join(', ');
+      } else if (type === 'dnd') {
+        yourAns   = (a.order || []).map(i => q.opts[i]).join(' → ');
+        correctAns = (Array.isArray(q.ans) ? q.ans : []).map(i => q.opts[i]).join(' → ');
+      } else {
+        if (a.selectedIdx === undefined) return;
+        yourAns   = 'ABCD'[a.selectedIdx] + '. ' + (q.opts[a.selectedIdx] || '');
+        correctAns = 'ABCD'[q.ans] + '. ' + (q.opts[q.ans] || '');
+      }
       const dup = state.wrongLog.find(w => w.q === q.q);
       if (!dup) {
         state.wrongLog.push({
@@ -3646,7 +3776,13 @@ function endSim() {
     const a = simState.answers[i];
     if (!domainTotals[q.domain]) domainTotals[q.domain] = { correct: 0, total: 0 };
     domainTotals[q.domain].total++;
-    if (a && (a.selectedIdx === q.ans || (Array.isArray(q.ans) && JSON.stringify([...(a.selected||[])].sort()) === JSON.stringify([...q.ans].sort())))) {
+    const t2 = q.type || 'mc';
+    const domOk = a && (
+      (t2 === 'mc' || t2 === 'yn') ? a.selectedIdx === q.ans :
+      t2 === 'ms' ? JSON.stringify([...(a.selected||[])].sort()) === JSON.stringify([...q.ans].sort()) :
+      t2 === 'dnd' ? JSON.stringify(a.order||[]) === JSON.stringify(q.ans||[]) : false
+    );
+    if (domOk) {
       domainTotals[q.domain].correct++;
     }
   });
