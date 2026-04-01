@@ -922,6 +922,28 @@
       line-height: 1.6;
     }
 
+    .btn-learn-more {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-family: var(--font-mono);
+      font-size: 0.78rem;
+      font-weight: 600;
+      letter-spacing: 0.04em;
+      color: var(--acc);
+      background: var(--acc-glow);
+      border: 1px solid rgba(99,102,241,0.35);
+      border-radius: var(--r);
+      padding: 8px 14px;
+      text-decoration: none;
+      transition: all var(--t);
+    }
+    .btn-learn-more:hover {
+      background: rgba(99,102,241,0.18);
+      border-color: var(--acc);
+      color: #fff;
+    }
+
     /* Loading state */
     #loading-overlay {
       display: none;
@@ -1621,6 +1643,12 @@
         <div id="exp-tip-wrap">
           <div class="exp-title">Memory Tip</div>
           <div class="exp-tip" id="exp-tip"></div>
+        </div>
+
+        <div id="exp-learn-wrap" style="margin-top:16px;">
+          <a id="exp-learn-btn" href="#" target="_blank" rel="noopener" class="btn-learn-more">
+            📖 Learn More on Microsoft Learn ↗
+          </a>
         </div>
       </div>
 
@@ -2480,7 +2508,8 @@ async function fetchQuestions(topicList) {
     '  "ans": 0,                                         // mc: 0-3 index; yn: 0=Yes 1=No; ms: [0,2]; dnd: [2,0,3,1]\n' +
     '  "pick": 2,                                        // ms only: how many to pick\n' +
     '  "exp": "<for MC/MS: explain each option — e.g. A: wrong because... B: CORRECT because... C: wrong because... D: wrong because... For YN/DND: explain why the answer is correct>",\n' +
-    '  "tip": "<one-line memory trick>"\n' +
+    '  "tip": "<one-line memory trick>",\n' +
+    '  "ref": "<2-5 word Microsoft Learn search query for this topic, e.g. \'Azure RBAC custom roles\'>"\n' +
     '}\n\n' +
     'Rules:\n' +
     '- mc: 4 options, ans is 0-3. Distribute correct answers across A/B/C/D roughly equally.\n' +
@@ -3049,6 +3078,21 @@ function showExplanation(q, isCorrect) {
     el('exp-tip').textContent = q.tip;
   } else {
     tipWrap.classList.add('hidden');
+  }
+
+  // Learn More link
+  const DOMAIN_LEARN = {
+    identity:   'https://learn.microsoft.com/en-us/azure/active-directory/',
+    storage:    'https://learn.microsoft.com/en-us/azure/storage/',
+    compute:    'https://learn.microsoft.com/en-us/azure/virtual-machines/',
+    networking: 'https://learn.microsoft.com/en-us/azure/networking/',
+    monitoring: 'https://learn.microsoft.com/en-us/azure/azure-monitor/',
+  };
+  const learnBtn = el('exp-learn-btn');
+  if (q.ref) {
+    learnBtn.href = 'https://learn.microsoft.com/en-us/search/?terms=' + encodeURIComponent(q.ref) + '&category=Documentation&products=azure';
+  } else {
+    learnBtn.href = DOMAIN_LEARN[q.domain] || 'https://learn.microsoft.com/en-us/azure/';
   }
 }
 
