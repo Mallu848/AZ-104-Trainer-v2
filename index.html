@@ -574,7 +574,8 @@
     }
 
     .progress-meta .q-counter { color: var(--txt2); font-weight: 600; }
-    .progress-meta .q-score   { color: var(--green); }
+    .progress-meta .q-score-correct { color: var(--green); font-weight: 600; }
+    .progress-meta .q-score-wrong   { color: var(--red);   font-weight: 600; }
 
     .progress-bar {
       height: 6px;
@@ -941,18 +942,27 @@
       margin-bottom: 20px;
     }
 
-    #review .filter-select {
+    .filter-select {
       font-family: var(--font-mono);
       font-size: 0.75rem;
       background: var(--bg2);
       border: 1px solid var(--border);
-      color: var(--txt2);
+      color: var(--txt);
       border-radius: var(--r);
       padding: 7px 10px;
       min-width: 140px;
+      cursor: pointer;
+      transition: border-color var(--t);
+      -webkit-appearance: none;
+      appearance: none;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6' viewBox='0 0 10 6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%2364748b'/%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-position: right 10px center;
+      padding-right: 28px;
     }
 
-    #review .filter-select:focus { border-color: var(--acc); }
+    .filter-select:hover { border-color: var(--border2); }
+    .filter-select:focus { border-color: var(--acc); outline: none; }
 
     .wrong-item {
       background: var(--bg1);
@@ -1549,7 +1559,7 @@
         <div class="progress-meta">
           <span class="q-counter">Question <span id="q-num-cur">1</span> of <span id="q-num-tot">10</span></span>
           <span id="q-session-domain" class="badge"></span>
-          <span class="q-score">✓ <span id="q-correct-count">0</span> &nbsp;✗ <span id="q-wrong-count">0</span></span>
+          <span class="q-score"><span class="q-score-correct">✓ <span id="q-correct-count">0</span></span>&nbsp;&nbsp;<span class="q-score-wrong">✗ <span id="q-wrong-count">0</span></span></span>
         </div>
         <div class="progress-bar" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100">
           <div class="progress-bar-fill" id="q-bar-fill" style="width:0%"></div>
@@ -2433,7 +2443,7 @@ async function fetchQuestions(topicList) {
     '  "opts": ["A text","B text","C text","D text"],   // mc only, 4 items\n' +
     '  "ans": 0,                                         // mc: 0-3 index; yn: 0=Yes 1=No; ms: [0,2]; dnd: [2,0,3,1]\n' +
     '  "pick": 2,                                        // ms only: how many to pick\n' +
-    '  "exp": "<explanation why the answer is correct and why distractors are wrong>",\n' +
+    '  "exp": "<for MC/MS: explain each option — e.g. A: wrong because... B: CORRECT because... C: wrong because... D: wrong because... For YN/DND: explain why the answer is correct>",\n' +
     '  "tip": "<one-line memory trick>"\n' +
     '}\n\n' +
     'Rules:\n' +
@@ -2441,13 +2451,18 @@ async function fetchQuestions(topicList) {
     '- yn: no opts field, ans is 0 (Yes) or 1 (No).\n' +
     '- ms: 4 options, ans is array of 0-3 indices (exactly pick count).\n' +
     '- dnd: items in opts array (4-5 items), ans is the correct order as array of original indices.\n' +
-    '- Every question must test what an admin DOES, not what a concept IS.\n' +
+    '- Every question must test what an Azure Administrator DOES (configure, deploy, troubleshoot, manage) — not define a concept.\n' +
+    '- Questions must map directly to an AZ-104 exam objective. Do not invent off-topic scenarios.\n' +
     '- Wrong options must be definitively wrong, not ambiguous.\n' +
+    '- For MC and MS questions, exp MUST explain each option individually using the format: "A: [reason]. B: [reason]. C: [reason]. D: [reason]." Mark the correct answer clearly.\n' +
+    '- Keep difficulty at the AZ-104 associate level — not entry-level, not expert/architect level.\n' +
     '- Exp and tip must be plain text, no markdown.\n' +
     'Return ONLY the JSON array.';
 
-  const sysPrompt = 'You are a Microsoft AZ-104 exam question writer and Azure subject matter expert with deep, accurate knowledge of all Azure services as of 2025. ' +
+  const sysPrompt = 'You are a Microsoft AZ-104 certified exam question writer. Generate ONLY questions that test skills explicitly listed in the official AZ-104 exam objectives (Manage Azure identities and governance, Implement and manage storage, Deploy and manage Azure compute resources, Implement and manage virtual networking, Monitor and maintain Azure resources). ' +
+    'DO NOT generate questions about: advanced Kubernetes internals, ARM template syntax deep-dives, obscure service limits not commonly tested, services outside the AZ-104 scope (e.g. Azure Synapse, Purview, DevOps pipelines), or topics a junior Azure Admin would never encounter. ' +
     'ACCURACY RULES: Every fact, limit, and behavior must be correct. If uncertain about a specific number, do not make it the crux of a question. ' +
+    'Questions must test what an Azure Administrator DOES in their day-to-day work — portal/CLI actions, configuration decisions, troubleshooting steps. ' +
     'Wrong answer options must be definitively incorrect. The correct answer must be unambiguously right. ' +
     'Return ONLY valid JSON — no markdown code fences, no prose.';
 
@@ -2477,6 +2492,21 @@ async function fetchQuestions(topicList) {
   const questions = JSON.parse(match[0]);
   if (!Array.isArray(questions) || questions.length === 0) throw new Error('No questions returned.');
   return questions;
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   BATCHED FETCH — splits large topic lists to avoid Netlify 26s timeout
+═══════════════════════════════════════════════════════════════ */
+async function fetchQuestionsInBatches(topics, progressCb) {
+  const BATCH_SIZE = 12;
+  const results = [];
+  for (let i = 0; i < topics.length; i += BATCH_SIZE) {
+    const batch = topics.slice(i, i + BATCH_SIZE);
+    if (progressCb) progressCb(i, topics.length);
+    const qs = await fetchQuestions(batch);
+    results.push(...qs);
+  }
+  return results;
 }
 
 /* ═══════════════════════════════════════════════════════════════
@@ -3283,7 +3313,9 @@ async function startSim() {
   el('start-sim-btn').textContent = 'Generating...';
 
   try {
-    const questions = await fetchQuestions(topics);
+    const questions = await fetchQuestionsInBatches(topics, (done, total) => {
+      el('start-sim-btn').textContent = 'Generating... (' + done + '/' + total + ')';
+    });
     simState.questions = questions;
     simState.answers   = {};
     simState.idx       = 0;
