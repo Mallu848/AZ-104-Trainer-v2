@@ -2509,7 +2509,7 @@ async function fetchQuestions(topicList) {
     '  "pick": 2,                                        // ms only: how many to pick\n' +
     '  "exp": "<for MC/MS: explain each option — e.g. A: wrong because... B: CORRECT because... C: wrong because... D: wrong because... For YN/DND: explain why the answer is correct>",\n' +
     '  "tip": "<one-line memory trick>",\n' +
-    '  "ref": "<2-5 word Microsoft Learn search query for this topic, e.g. \'Azure RBAC custom roles\'>"\n' +
+    '  "ref": "<2-5 word Microsoft Learn search query for this topic — use current names: Microsoft Entra ID (not Azure AD), Azure Monitor, etc. e.g. \'Entra ID SSPR\', \'NSG flow logs\', \'Azure RBAC custom roles\'>"\n' +
     '}\n\n' +
     'Rules:\n' +
     '- mc: 4 options, ans is 0-3. Distribute correct answers across A/B/C/D roughly equally.\n' +
@@ -3090,7 +3090,7 @@ function showExplanation(q, isCorrect) {
   };
   const learnBtn = el('exp-learn-btn');
   if (q.ref) {
-    learnBtn.href = 'https://learn.microsoft.com/en-us/search/?terms=' + encodeURIComponent(q.ref) + '&category=Documentation&products=azure';
+    learnBtn.href = 'https://learn.microsoft.com/en-us/search/?terms=' + encodeURIComponent(q.ref);
   } else {
     learnBtn.href = DOMAIN_LEARN[q.domain] || 'https://learn.microsoft.com/en-us/azure/';
   }
